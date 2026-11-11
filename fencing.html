@@ -1,0 +1,1027 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Клуб «Байард» — статистика</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#f4f6f8;color:#1a202c;font-size:16px;line-height:1.4;-webkit-text-size-adjust:100%}
+
+.bg-lion {
+  position: fixed;
+  top: 0; left: 0; width: 100vw; height: 100vh;
+  background-image: url('logo.png');
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 70vmin;
+  opacity: 0.04;
+  mix-blend-mode: multiply;
+  pointer-events: none;
+  z-index: -1;
+}
+
+.app-header{background:#fff;padding:14px 12px;display:flex;align-items:center;justify-content:center;gap:12px;box-shadow:0 1px 4px rgba(0,0,0,.08);position:relative;z-index:11}
+.club-logo{height:52px;width:auto;border-radius:6px;object-fit:contain}
+.app-title{font-weight:700;font-size:18px;color:#1a202c;letter-spacing:0.5px;line-height:1.1}
+.app-title small{display:block;font-size:11px;color:#c53030;font-weight:600;text-transform:uppercase;letter-spacing:1px;margin-top:2px}
+.nav{display:flex;gap:4px;background:#1a202c;padding:8px;position:sticky;top:0;z-index:10}
+.nav button{flex:1;padding:10px;color:#cbd5e0;background:none;border:none;border-radius:6px;font-size:14px;font-weight:500;cursor:pointer;font-family:inherit}
+.nav button.active{background:#c53030;color:#fff}
+.container{max-width:800px;margin:0 auto;padding:12px}
+h1{font-size:22px;margin:8px 0 12px}
+h2{font-size:18px;margin:16px 0 8px}
+h3{font-size:15px;margin:12px 0 6px;color:#4a5568}
+.card{background:#fff;border-radius:10px;padding:12px;margin-bottom:10px;box-shadow:0 1px 3px rgba(0,0,0,.06)}
+.row{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.muted{color:#718096;font-size:14px}
+.btn{display:inline-block;padding:10px 14px;background:#c53030;color:#fff;border:none;border-radius:8px;font-size:15px;font-weight:500;cursor:pointer;text-align:center;font-family:inherit;transition:background .2s}
+.btn:hover{background:#9b2c2c}
+.btn-secondary{background:#edf2f7;color:#2d3748}
+.btn-secondary:hover{background:#e2e8f0}
+.btn-danger{background:#e53e3e}
+.btn-danger:hover{background:#c53030}
+.btn-sm{padding:6px 10px;font-size:13px}
+.btn-xs{padding:4px 8px;font-size:12px}
+.btn-block{width:100%;display:block}
+input,select,textarea{width:100%;padding:10px 12px;border:1px solid #cbd5e0;border-radius:8px;font-size:16px;background:#fff;font-family:inherit}
+input:focus,select:focus{outline:2px solid #c53030;outline-offset:-2px;border-color:#c53030}
+label{display:block;margin:10px 0 4px;font-size:14px;color:#4a5568;font-weight:500}
+details{background:#fff;border-radius:10px;padding:10px 12px;margin-bottom:12px;box-shadow:0 1px 3px rgba(0,0,0,.06)}
+details>summary{cursor:pointer;font-weight:600;color:#c53030;padding:4px 0;list-style:none}
+details>summary::-webkit-details-marker{display:none}
+details[open]>summary{margin-bottom:8px}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th,td{text-align:left;padding:8px 4px;border-bottom:1px solid #edf2f7}
+th{font-size:12px;color:#718096;text-transform:uppercase;font-weight:600}
+.num{text-align:right;font-variant-numeric:tabular-nums}
+.list-item{padding:10px 0;border-bottom:1px solid #edf2f7}
+.list-item:last-child{border-bottom:none}
+.pill{display:inline-block;padding:2px 8px;border-radius:12px;font-size:12px;background:#edf2f7;color:#4a5568;white-space:nowrap}
+.badge-win{background:#c6f6d5;color:#22543d}
+.badge-loss{background:#fed7d7;color:#742a2a}
+.badge-tie{background:#feebc8;color:#7b341e}
+.badge-extra{background:#bee3f8;color:#2a4365}
+.empty{color:#a0aec0;font-style:italic;padding:12px 0;text-align:center}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.stat{background:#f7fafc;border-radius:8px;padding:10px;text-align:center;border:1px solid #edf2f7}
+.stat-value{font-size:22px;font-weight:700;color:#c53030}
+.stat-label{font-size:12px;color:#718096;margin-top:2px}
+.link{cursor:pointer;color:inherit;text-decoration:none}
+.link:hover{color:#c53030}
+.warn{background:#fed7d7;color:#742a2a;padding:10px 12px;border-radius:8px;margin-bottom:12px;font-size:14px}
+.warn code{background:rgba(0,0,0,.08);padding:1px 5px;border-radius:3px;font-size:13px}
+.place-input{width:60px;padding:6px 4px;font-size:15px;text-align:center;border-radius:6px}
+.score-input{width:74px;text-align:center;font-size:24px;font-weight:700;padding:8px 4px;border-radius:8px}
+.score-sep{font-size:24px;color:#718096;font-weight:700}
+.entry-row{cursor:pointer;transition:background .15s}
+.entry-row:hover{background:#f7fafc;margin:0 -12px;padding-left:12px;padding-right:12px}
+.disc-label{font-size:13px;color:#718096;min-width:80px;font-weight:500}
+.bout-edit{background:#f7fafc;margin:8px -12px 0;padding:12px;border-radius:8px;border-left:3px solid #c53030}
+.extras-wrap{padding-left:14px;border-left:3px solid #edf2f7;margin-top:6px}
+.disc-block{margin-top:10px}
+.disc-block-title{font-weight:600;color:#2d3748;font-size:14px;margin-bottom:2px}
+.disc-line{font-size:13px;color:#4a5568;margin-top:1px}
+@media(min-width:600px){.grid-2{grid-template-columns:1fr 1fr 1fr 1fr}}
+</style>
+</head>
+<body>
+<div class="bg-lion"></div>
+<header class="app-header">
+  <img src="logo.png" alt="Герб клуба" class="club-logo" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj48Y2lyY2xlIGN4PSI1MCIgY3k9IjUwIiByPSI0NSIgZmlsbD0iI2M1MzAzMCIvPjx0ZXh0IHg9IjUwIiB5PSI2NSIgZm9udC1zaXplPSI1MCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZmlsbD0iI2ZmZiIgZm9udC1mYW1pbHk9InNhbnMtc2VyaWYiPk08L3RleHQ+PC9zdmc+';">
+  <div class="app-title">ДЕТСКИЙ МЕЧ<small>статистика клуба «Байард»</small></div>
+</header>
+<nav class="nav">
+<button data-nav="home">Главная</button>
+<button data-nav="students">Ученики</button>
+<button data-nav="competitions">Турниры</button>
+</nav>
+<main class="container" id="view"></main>
+<script>
+const KEY = 'fencing_coach_v1';
+const CATS = {
+  ALL_AROUND: 'Двоеборье',
+  SHIELD_SWORD: 'Щит меч',
+  SWORD_BUCKLER: 'Меч баклер'
+};
+const DISCIPLINES = { SHIELD_SWORD: 'Щит меч', SWORD_BUCKLER: 'Меч баклер' };
+const ROUNDS = ['1/8','1/4','1/2','Финал'];
+
+let storageOK = true;
+try {
+  const t = '__fencing_test__';
+  localStorage.setItem(t, '1');
+  if (localStorage.getItem(t) !== '1') storageOK = false;
+  localStorage.removeItem(t);
+} catch (e) { storageOK = false; }
+
+let db = load();
+let state = {view:'home', id:null};
+let editingBout = null;
+let addingExtraTo = null;
+
+function load(){
+  try {
+    const raw = localStorage.getItem(KEY);
+    if (!raw) return seed();
+    return normalize(JSON.parse(raw));
+  } catch(e){ return seed(); }
+}
+function seed(){return {students:[],competitions:[],entries:[],bouts:[]}}
+
+function normalize(d){
+  const competitions = (d.competitions || []).map(c => ({id:c.id,name:c.name,date:c.date,city:c.city||c.location||null}));
+  const entries = (d.entries || []).map(e => ({...e, place: e.place ?? null}));
+  const bouts = (d.bouts || []).map(b => {
+    if (b.scores) {
+      return {
+        ...b,
+        isExtra: !!b.isExtra,
+        parentBoutId: b.parentBoutId || null
+      };
+    }
+    const category = b.category;
+    const scores = {};
+    if (category === 'ALL_AROUND') {
+      scores.SHIELD_SWORD = {for: b.scoreFor||0, against: b.scoreAgainst||0};
+      scores.SWORD_BUCKLER = {for: b.scoreFor||0, against: b.scoreAgainst||0};
+    } else {
+      scores[category] = {for: b.scoreFor||0, against: b.scoreAgainst||0};
+    }
+    let entryId = b.entryId;
+    if (!entryId) {
+      const entry = entries.find(e =>
+        e.competitionId === b.competitionId &&
+        e.studentId === b.studentId &&
+        e.category === b.category
+      );
+      if (entry) entryId = entry.id;
+    }
+    return {
+      id: b.id,
+      entryId,
+      competitionId: b.competitionId,
+      studentId: b.studentId,
+      category: b.category,
+      isExtra: false,
+      parentBoutId: null,
+      scores,
+      stage: b.stage || null,
+      round: b.round || null,
+      createdAt: b.createdAt || Date.now()
+    };
+  });
+
+  const mainByEntry = {};
+  for (const b of bouts) {
+    if (!b.isExtra && b.entryId) {
+      if (!mainByEntry[b.entryId]) mainByEntry[b.entryId] = [];
+      mainByEntry[b.entryId].push(b);
+    }
+  }
+  for (const b of bouts) {
+    if (b.isExtra && !b.parentBoutId && b.entryId) {
+      const candidates = mainByEntry[b.entryId] || [];
+      if (candidates.length > 0) {
+        const discOfExtra = Object.keys(b.scores)[0];
+        let candidate = null;
+        for (let i = candidates.length - 1; i >= 0; i--) {
+          const c = candidates[i];
+          if (c.category === discOfExtra || c.category === 'ALL_AROUND') {
+            candidate = c; break;
+          }
+        }
+        if (!candidate) candidate = candidates[candidates.length - 1];
+        b.parentBoutId = candidate.id;
+      }
+    }
+  }
+
+  return {students: d.students || [], competitions, entries, bouts};
+}
+
+function save(){ try { localStorage.setItem(KEY, JSON.stringify(db)); } catch(e) { storageOK = false; console.error('save failed', e); } }
+function uid(){return Math.random().toString(36).slice(2)+Date.now().toString(36)}
+function calcAge(bd){const d=new Date(bd),t=new Date();let a=t.getFullYear()-d.getFullYear();const m=t.getMonth()-d.getMonth();if(m<0||(m===0&&t.getDate()<d.getDate()))a--;return a}
+function fmtDate(d){return new Date(d).toLocaleDateString('ru-RU')}
+function fullName(s){return [s.lastName,s.firstName,s.middleName].filter(Boolean).join(' ')}
+function catLabel(k){return CATS[k]||k}
+function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c])}
+
+function aggregate(bouts) {
+  const r = {
+    mainBouts: 0, extraBouts: 0,
+    fMain: 0, aMain: 0, wMain: 0, lMain: 0, tMain: 0,
+    fExtra: 0, aExtra: 0, wExtra: 0, lExtra: 0, tExtra: 0,
+    byDisc: {}
+  };
+  for (const disc of Object.keys(DISCIPLINES)) {
+    r.byDisc[disc] = { mainBouts:0, extraBouts:0, fMain:0, aMain:0, fExtra:0, aExtra:0 };
+  }
+  for (const b of bouts) {
+    let bf = 0, ba = 0;
+    for (const [disc, s] of Object.entries(b.scores || {})) {
+      bf += s.for; ba += s.against;
+      const d = r.byDisc[disc];
+      if (!d) continue;
+      if (b.isExtra) {
+        d.extraBouts++; d.fExtra += s.for; d.aExtra += s.against;
+      } else {
+        d.mainBouts++; d.fMain += s.for; d.aMain += s.against;
+      }
+    }
+    if (b.isExtra) {
+      r.extraBouts++; r.fExtra += bf; r.aExtra += ba;
+      if (bf > ba) r.wExtra++; else if (bf < ba) r.lExtra++; else r.tExtra++;
+    } else {
+      r.mainBouts++; r.fMain += bf; r.aMain += ba;
+      if (bf > ba) r.wMain++; else if (bf < ba) r.lMain++; else r.tMain++;
+    }
+  }
+  return r;
+}
+
+function go(view,id){state={view,id}; editingBout=null; addingExtraTo=null; render(); window.scrollTo(0,0)}
+document.querySelector('.nav').addEventListener('click',e=>{const b=e.target.closest('button[data-nav]');if(b)go(b.dataset.nav)});
+
+function render(){
+  document.querySelectorAll('.nav button').forEach(b=>{
+    const active = b.dataset.nav===state.view
+      || (state.view==='student'&&b.dataset.nav==='students')
+      || ((state.view==='competition'||state.view==='entry')&&b.dataset.nav==='competitions');
+    b.classList.toggle('active', active);
+  });
+  const v=document.getElementById('view');
+  if(state.view==='home')v.innerHTML=renderHome();
+  else if(state.view==='students')v.innerHTML=renderStudents();
+  else if(state.view==='student')v.innerHTML=renderStudent(state.id);
+  else if(state.view==='competitions')v.innerHTML=renderCompetitions();
+  else if(state.view==='competition')v.innerHTML=renderCompetition(state.id);
+  else if(state.view==='entry')v.innerHTML=renderEntry(state.id);
+  bindEvents();
+}
+
+function renderStatsTable(agg) {
+  const hasExtra = agg.extraBouts > 0;
+  return `<table>
+    <thead><tr><th>Показатель</th><th class="num">Боёв</th><th class="num">Набил</th><th class="num">Проп.</th><th class="num">П/Пр/Н</th></tr></thead>
+    <tbody>
+      <tr>
+        <td>Основные</td>
+        <td class="num">${agg.mainBouts}</td>
+        <td class="num">${agg.fMain}</td>
+        <td class="num">${agg.aMain}</td>
+        <td class="num">${agg.wMain}/${agg.lMain}/${agg.tMain}</td>
+      </tr>
+      ${hasExtra ? `
+      <tr>
+        <td>Добёвки</td>
+        <td class="num">${agg.extraBouts}</td>
+        <td class="num">${agg.fExtra}</td>
+        <td class="num">${agg.aExtra}</td>
+        <td class="num">${agg.wExtra}/${agg.lExtra}/${agg.tExtra}</td>
+      </tr>
+      <tr style="font-weight:600;background:#f7fafc">
+        <td>С добёвками</td>
+        <td class="num">${agg.mainBouts + agg.extraBouts}</td>
+        <td class="num">${agg.fMain + agg.fExtra}</td>
+        <td class="num">${agg.aMain + agg.aExtra}</td>
+        <td class="num">${agg.wMain + agg.wExtra}/${agg.lMain + agg.lExtra}/${agg.tMain + agg.tExtra}</td>
+      </tr>` : ''}
+    </tbody>
+  </table>`;
+}
+
+function renderPerDisc(agg) {
+  return Object.keys(DISCIPLINES).map(disc => {
+    const d = agg.byDisc[disc];
+    if (d.mainBouts + d.extraBouts === 0) return '';
+    return `<div class="disc-block">
+      <div class="disc-block-title">${DISCIPLINES[disc]}</div>
+      <div class="disc-line">Без добёвок: ${d.mainBouts} ${d.mainBouts===1?'бой':d.mainBouts<5?'боя':'боёв'} · ${d.fMain}:${d.aMain}</div>
+      ${d.extraBouts > 0 ? `
+        <div class="disc-line">Добёвки: ${d.extraBouts} · ${d.fExtra}:${d.aExtra}</div>
+        <div class="disc-line">С добёвками: ${d.mainBouts + d.extraBouts} ${(d.mainBouts+d.extraBouts)===1?'бой':(d.mainBouts+d.extraBouts)<5?'боя':'боёв'} · ${d.fMain + d.fExtra}:${d.aMain + d.aExtra}</div>
+      ` : ''}
+    </div>`;
+  }).join('');
+}
+
+function renderHome(){
+  const warn = !storageOK ? `<div class="warn">
+    <strong>⚠️ Сохранение в браузере недоступно</strong><br>
+    Запусти локальный сервер: <code>python -m http.server 8000</code> (или <code>npx serve</code>)<br>
+    и открой <code>http://localhost:8000/fencing.html</code>.
+  </div>` : '';
+  return `${warn}
+  <div style="text-align:center;margin:16px 0 24px">
+    <img src="logo.png" alt="Герб" style="height:120px;width:auto;opacity:0.9;filter:drop-shadow(0 4px 6px rgba(197,48,48,0.2))" onerror="this.style.display='none'">
+  </div>
+  <div style="position:relative; margin-bottom:16px;">
+    <img src="logo.png" alt="" style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:60%;max-width:300px;opacity:0.06;pointer-events:none;mix-blend-mode:multiply;z-index:0;" onerror="this.style.display='none'">
+    <div class="grid-2" style="position:relative;z-index:1">
+      <div class="stat"><div class="stat-value">${db.students.length}</div><div class="stat-label">учеников</div></div>
+      <div class="stat"><div class="stat-value">${db.competitions.length}</div><div class="stat-label">турниров</div></div>
+      <div class="stat"><div class="stat-value">${db.bouts.filter(b=>!b.isExtra).length}</div><div class="stat-label">основных боёв</div></div>
+      <div class="stat"><div class="stat-value">${db.bouts.filter(b=>b.isExtra).length}</div><div class="stat-label">добёвок</div></div>
+    </div>
+  </div>
+  <h2>Быстрый переход</h2>
+  <button class="btn btn-block" data-go="students" style="margin-bottom:8px">Ученики</button>
+  <button class="btn btn-block btn-secondary" data-go="competitions" style="margin-bottom:16px">Соревнования</button>`;
+}
+
+function renderStudents(){
+  const list=[...db.students].sort((a,b)=>a.lastName.localeCompare(b.lastName));
+  return `<h1>Ученики</h1>
+  <details><summary>+ Добавить ученика</summary>
+    <form data-action="add-student">
+      <label>Фамилия*</label><input name="lastName" required>
+      <label>Имя*</label><input name="firstName" required>
+      <label>Отчество</label><input name="middleName">
+      <label>Дата рождения*</label><input name="birthDate" type="date" required>
+      <label>Пол</label><select name="gender"><option value="">—</option><option value="м">М</option><option value="ж">Ж</option></select>
+      <button class="btn btn-block" type="submit" style="margin-top:12px">Сохранить</button>
+    </form>
+  </details>
+  ${list.length===0?'<div class="empty">Пока никого нет</div>':list.map(s=>`
+    <div class="card row">
+      <div class="link" data-go="student" data-id="${s.id}" style="flex:1">
+        <div style="font-weight:600">${esc(fullName(s))}</div>
+        <div class="muted">${fmtDate(s.birthDate)} · ${calcAge(s.birthDate)} лет${s.gender?' · '+s.gender:''}</div>
+      </div>
+      <span class="muted" style="color:#c53030">›</span>
+    </div>`).join('')}
+  <details style="margin-top:24px;background:transparent;box-shadow:none;padding:0">
+    <summary style="color:#718096;font-weight:500;font-size:13px;padding:4px 0">⚙️ Резервная копия (JSON)</summary>
+    <div class="card" style="margin-top:8px">
+      <div class="muted" style="font-size:13px;margin-bottom:10px">
+        Данные хранятся только в этом браузере. Сохрани файл, если сменишь браузер или устройство — иначе потеряешь всё.
+      </div>
+      <button class="btn btn-block btn-secondary btn-sm" data-action="export-json" style="margin-bottom:8px">Экспорт JSON (скачать копию)</button>
+      <label class="btn btn-secondary btn-sm btn-block" style="cursor:pointer;margin:0">
+        Импорт JSON (загрузить из файла)
+        <input type="file" accept=".json,application/json" style="display:none" data-action="import-json">
+      </label>
+    </div>
+  </details>`;
+}
+
+function renderStudent(id){
+  const s=db.students.find(x=>x.id===id);if(!s)return '<div class="empty">Не найдено</div>';
+  const myBouts=db.bouts.filter(b=>b.studentId===id);
+  const myEntries=db.entries.filter(e=>e.studentId===id);
+  const compIds=new Set(myEntries.map(e=>e.competitionId));
+  const total = aggregate(myBouts);
+
+  const byComp={};
+  for (const b of myBouts) {
+    const c = db.competitions.find(x => x.id === b.competitionId);
+    if (!c) continue;
+    if (!byComp[b.competitionId]) byComp[b.competitionId] = {compId:b.competitionId, name:c.name, date:c.date, bouts:[]};
+    byComp[b.competitionId].bouts.push(b);
+  }
+  for (const e of myEntries) {
+    if (!byComp[e.competitionId]) {
+      const c = db.competitions.find(x => x.id === e.competitionId);
+      if (c) byComp[e.competitionId] = {compId:e.competitionId, name:c.name, date:c.date, bouts:[]};
+    }
+  }
+  const comps = Object.values(byComp).sort((a,b)=>new Date(b.date)-new Date(a.date));
+  for (const c of comps) {
+    c.agg = aggregate(c.bouts);
+    c.places = myEntries.filter(e => e.competitionId === c.compId && e.place);
+  }
+
+  const byYear = {};
+  for (const b of myBouts) {
+    const c = db.competitions.find(x => x.id === b.competitionId);
+    if (!c) continue;
+    const y = new Date(c.date).getFullYear();
+    if (!byYear[y]) byYear[y] = [];
+    byYear[y].push(b);
+  }
+  const cy = new Date().getFullYear();
+  const yearAgg = byYear[cy] ? aggregate(byYear[cy]) : aggregate([]);
+
+  return `<div class="muted link" data-go="students">‹ Назад</div>
+  <h1>${esc(fullName(s))}</h1>
+  <div class="muted" style="margin-bottom:12px">${fmtDate(s.birthDate)} · ${calcAge(s.birthDate)} лет${s.gender?' · '+s.gender:''}</div>
+
+  <div class="grid-2" style="margin-bottom:12px">
+    <div class="stat"><div class="stat-value">${compIds.size}</div><div class="stat-label">турниров</div></div>
+    <div class="stat"><div class="stat-value">${total.mainBouts}</div><div class="stat-label">основных боёв</div></div>
+    <div class="stat"><div class="stat-value">${total.extraBouts}</div><div class="stat-label">добёвок</div></div>
+    <div class="stat"><div class="stat-value">${total.fMain}:${total.aMain}</div><div class="stat-label">набил:пропустил</div></div>
+  </div>
+
+  <h2>Всего</h2>
+  <div class="card">
+    ${renderStatsTable(total)}
+    <div class="disc-block" style="margin-top:12px">
+      <div style="font-weight:600;font-size:14px;color:#2d3748;margin-bottom:2px">По дисциплинам</div>
+    </div>
+    ${renderPerDisc(total)}
+  </div>
+
+  <h2>За ${cy} год</h2>
+  <div class="card">
+    ${renderStatsTable(yearAgg)}
+  </div>
+
+  <h2>По турнирам</h2>
+  ${comps.length===0?'<div class="empty">Ещё не было турниров</div>':comps.map(c=>`
+    <div class="card">
+      <div class="row"><div style="font-weight:600">${esc(c.name)}</div><div class="muted">${fmtDate(c.date)}</div></div>
+      ${c.agg.mainBouts + c.agg.extraBouts > 0 ? renderStatsTable(c.agg) : '<div class="muted" style="margin-top:4px;font-size:13px">Боёв нет</div>'}
+      ${renderPerDisc(c.agg)}
+      ${c.places.length > 0 ? `<div class="muted" style="font-size:13px;margin-top:6px;color:#c53030;font-weight:600">🏆 ${c.places.map(e => `${catLabel(e.category)} — ${e.place} место`).join(', ')}</div>` : ''}
+    </div>`).join('')}
+
+  ${Object.keys(byYear).length>0?`
+    <h2>По годам</h2>
+    <div class="card"><table>
+      <thead><tr><th>Год</th><th class="num">Осн.</th><th class="num">Доб.</th><th class="num">Набил (осн./доб./с доб.)</th><th class="num">Проп. (осн./доб./с доб.)</th></tr></thead>
+      <tbody>${Object.entries(byYear).sort((a,b)=>b[0]-a[0]).map(([y,list])=>{
+        const a = aggregate(list);
+        return `<tr>
+          <td>${y}</td>
+          <td class="num">${a.mainBouts}</td>
+          <td class="num">${a.extraBouts}</td>
+          <td class="num">${a.fMain} / ${a.fExtra} / ${a.fMain+a.fExtra}</td>
+          <td class="num">${a.aMain} / ${a.aExtra} / ${a.aMain+a.aExtra}</td>
+        </tr>`;
+      }).join('')}</tbody>
+    </table></div>`:''}
+
+  <button class="btn btn-danger btn-sm btn-block" data-action="del-student" data-id="${s.id}" style="margin-top:24px">Удалить ученика</button>`;
+}
+
+function renderCompetitions(){
+  const list=[...db.competitions].sort((a,b)=>new Date(b.date)-new Date(a.date));
+  return `<h1>Соревнования</h1>
+  <details><summary>+ Добавить соревнование</summary>
+    <form data-action="add-competition">
+      <label>Название*</label><input name="name" required>
+      <label>Дата*</label><input name="date" type="date" required value="${new Date().toISOString().slice(0,10)}">
+      <label>Город</label><input name="city">
+      <button class="btn btn-block" type="submit" style="margin-top:12px">Создать</button>
+    </form>
+  </details>
+  ${list.length===0?'<div class="empty">Пока турниров нет</div>':list.map(c=>{
+    const eCount=db.entries.filter(e=>e.competitionId===c.id).length;
+    const bCount=db.bouts.filter(b=>b.competitionId===c.id && !b.isExtra).length;
+    const exCount=db.bouts.filter(b=>b.competitionId===c.id && b.isExtra).length;
+    return `<div class="card row">
+      <div class="link" data-go="competition" data-id="${c.id}" style="flex:1">
+        <div style="font-weight:600">${esc(c.name)}</div>
+        <div class="muted">${fmtDate(c.date)}${c.city?' · '+esc(c.city):''}</div>
+        <div class="muted" style="font-size:13px">${eCount} участников · ${bCount} боёв${exCount?' · '+exCount+' доб.':''}</div>
+      </div>
+      <span class="muted" style="color:#c53030">›</span>
+    </div>`;}).join('')}`;
+}
+
+function renderCompetition(id){
+  const c=db.competitions.find(x=>x.id===id);if(!c)return '<div class="empty">Не найдено</div>';
+  const entries=db.entries.filter(e=>e.competitionId===id);
+  const students=[...db.students].sort((a,b)=>a.lastName.localeCompare(b.lastName));
+  const byCat={};for(const k of Object.keys(CATS))byCat[k]=[];
+  for(const e of entries){if(!byCat[e.category])byCat[e.category]=[];byCat[e.category].push(e)}
+
+  return `<div class="muted link" data-go="competitions">‹ Все турниры</div>
+  <h1>${esc(c.name)}</h1>
+  <div class="muted" style="margin-bottom:16px">${fmtDate(c.date)}${c.city?' · '+esc(c.city):''}</div>
+
+  <h2>Участники</h2>
+  ${Object.entries(byCat).map(([cat,list])=>{
+    const availableStudents = students.filter(s => !list.some(e => e.studentId === s.id));
+    return `<div class="card">
+      <h3 style="margin-top:0">${catLabel(cat)}</h3>
+      ${list.length===0?'<div class="muted" style="padding:4px 0">Никого</div>':list.map(e=>{
+        const s=db.students.find(x=>x.id===e.studentId);if(!s)return '';
+        const mb = db.bouts.filter(b => b.entryId === e.id && !b.isExtra).length;
+        const eb = db.bouts.filter(b => b.entryId === e.id && b.isExtra).length;
+        return `<div class="row list-item entry-row" data-go="entry" data-id="${e.id}">
+          <div style="flex:1">
+            <div style="font-weight:500">${esc(fullName(s))} <span class="muted" style="font-weight:400">${calcAge(s.birthDate)}</span></div>
+            <div class="muted" style="font-size:13px">
+              ${mb === 0 && eb === 0 ? 'нет боёв' :
+                `${mb} ${mb===1?'бой':mb<5?'боя':'боёв'}${eb ? ' · '+eb+' доб.' : ''}`}
+              ${e.place ? ' · <span style="color:#c53030">🏆 ' + e.place + ' место</span>' : ''}
+            </div>
+          </div>
+          <span class="muted">›</span>
+        </div>`;}).join('')}
+      ${availableStudents.length > 0 ? `<form data-action="add-entry" style="margin-top:8px">
+        <input type="hidden" name="competitionId" value="${c.id}">
+        <input type="hidden" name="category" value="${cat}">
+        <select name="studentId" required>
+          <option value="" disabled selected>+ добавить участника</option>
+          ${availableStudents.map(s=>`<option value="${s.id}">${esc(fullName(s))} (${calcAge(s.birthDate)})</option>`).join('')}
+        </select>
+        <button class="btn btn-sm btn-secondary" type="submit" style="margin-top:6px">Добавить</button>
+      </form>` : '<div class="muted" style="font-size:13px;margin-top:6px">Все ученики уже добавлены</div>'}
+    </div>`;}).join('')}
+
+  <button class="btn btn-danger btn-sm btn-block" data-action="del-competition" data-id="${c.id}" style="margin-top:24px">Удалить соревнование</button>`;
+}
+
+function renderBoutEdit(b) {
+  let scoreInputs = '';
+  let stageSection = '';
+
+  if (b.isExtra) {
+    const parent = db.bouts.find(x => x.id === b.parentBoutId);
+    const parentCategory = parent ? parent.category : null;
+    const currentDisc = Object.keys(b.scores)[0];
+    const s = b.scores[currentDisc];
+    let discField;
+    if (parentCategory && parentCategory !== 'ALL_AROUND') {
+      discField = `<input type="hidden" name="discipline" value="${parentCategory}">
+        <span class="pill">${DISCIPLINES[parentCategory]}</span>`;
+    } else {
+      discField = `<select name="discipline">
+        ${Object.entries(DISCIPLINES).map(([k,v]) => `<option value="${k}" ${k===currentDisc?'selected':''}>${v}</option>`).join('')}
+      </select>`;
+    }
+    scoreInputs = `
+      <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px">${discField}</div>
+      <div style="display:flex;align-items:center;gap:8px">
+        <input name="scoreFor" type="number" min="0" value="${s.for}" required class="score-input" inputmode="numeric">
+        <span class="score-sep">:</span>
+        <input name="scoreAgainst" type="number" min="0" value="${s.against}" required class="score-input" inputmode="numeric">
+      </div>`;
+  } else if (b.category === 'ALL_AROUND') {
+    scoreInputs = `
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;flex-wrap:wrap">
+        <span class="disc-label">Щит меч:</span>
+        <input name="scoreForShield" type="number" min="0" value="${b.scores.SHIELD_SWORD.for}" required class="score-input" inputmode="numeric">
+        <span class="score-sep">:</span>
+        <input name="scoreAgainstShield" type="number" min="0" value="${b.scores.SHIELD_SWORD.against}" required class="score-input" inputmode="numeric">
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;flex-wrap:wrap">
+        <span class="disc-label">Меч баклер:</span>
+        <input name="scoreForBuckler" type="number" min="0" value="${b.scores.SWORD_BUCKLER.for}" required class="score-input" inputmode="numeric">
+        <span class="score-sep">:</span>
+        <input name="scoreAgainstBuckler" type="number" min="0" value="${b.scores.SWORD_BUCKLER.against}" required class="score-input" inputmode="numeric">
+      </div>`;
+    stageSection = `
+      <label>Этап</label>
+      <select name="stage">
+        <option value="" ${!b.stage?'selected':''}>— (каждый с каждым)</option>
+        <option value="POOL" ${b.stage==='POOL'?'selected':''}>Пул</option>
+        <option value="PLAYOFF" ${b.stage==='PLAYOFF'?'selected':''}>Плей-офф</option>
+      </select>
+      <select name="round" data-round-field style="display:${b.stage==='PLAYOFF'?'':'none'};margin-top:6px">
+        <option value="">раунд</option>
+        ${ROUNDS.map(r => `<option value="${r}" ${b.round===r?'selected':''}>${r}</option>`).join('')}
+      </select>`;
+  } else {
+    const s = b.scores[b.category] || {for:0, against:0};
+    scoreInputs = `
+      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+        <span class="disc-label">${DISCIPLINES[b.category]||''}:</span>
+        <input name="scoreFor" type="number" min="0" value="${s.for}" required class="score-input" inputmode="numeric">
+        <span class="score-sep">:</span>
+        <input name="scoreAgainst" type="number" min="0" value="${s.against}" required class="score-input" inputmode="numeric">
+      </div>`;
+    stageSection = `
+      <label>Этап</label>
+      <select name="stage">
+        <option value="" ${!b.stage?'selected':''}>— (каждый с каждым)</option>
+        <option value="POOL" ${b.stage==='POOL'?'selected':''}>Пул</option>
+        <option value="PLAYOFF" ${b.stage==='PLAYOFF'?'selected':''}>Плей-офф</option>
+      </select>
+      <select name="round" data-round-field style="display:${b.stage==='PLAYOFF'?'':'none'};margin-top:6px">
+        <option value="">раунд</option>
+        ${ROUNDS.map(r => `<option value="${r}" ${b.round===r?'selected':''}>${r}</option>`).join('')}
+      </select>`;
+  }
+
+  return `<div class="bout-edit">
+    <form data-action="edit-bout">
+      <input type="hidden" name="boutId" value="${b.id}">
+      ${b.isExtra ? '<div class="muted" style="font-size:12px;margin-bottom:6px;font-weight:600">Добёвка</div>' : ''}
+      ${scoreInputs}
+      ${stageSection}
+      <div style="display:flex;gap:8px;margin-top:12px">
+        <button class="btn" type="submit" style="flex:1">Сохранить</button>
+        <button class="btn btn-secondary" type="button" data-action="cancel-edit-bout">Отмена</button>
+      </div>
+    </form>
+  </div>`;
+}
+
+function renderAddExtraForm(parentBout) {
+  let discField;
+  if (parentBout.category === 'ALL_AROUND') {
+    discField = `
+      <select name="discipline" style="flex:1">
+        <option value="SHIELD_SWORD">Щит меч</option>
+        <option value="SWORD_BUCKLER">Меч баклер</option>
+      </select>`;
+  } else {
+    discField = `
+      <input type="hidden" name="discipline" value="${parentBout.category}">
+      <span class="pill">${DISCIPLINES[parentBout.category]}</span>`;
+  }
+  return `<div class="bout-edit">
+    <form data-action="add-extra-bout">
+      <input type="hidden" name="boutId" value="${parentBout.id}">
+      <div class="muted" style="font-size:12px;margin-bottom:6px;font-weight:600">Добёвка к бою</div>
+      <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px;flex-wrap:wrap">${discField}</div>
+      <div style="display:flex;align-items:center;gap:8px">
+        <input name="scoreFor" type="number" min="0" value="0" required class="score-input" inputmode="numeric">
+        <span class="score-sep">:</span>
+        <input name="scoreAgainst" type="number" min="0" value="0" required class="score-input" inputmode="numeric">
+      </div>
+      <div style="display:flex;gap:8px;margin-top:10px">
+        <button class="btn" type="submit" style="flex:1">Добавить</button>
+        <button class="btn btn-secondary" type="button" data-action="cancel-extra">Отмена</button>
+      </div>
+    </form>
+  </div>`;
+}
+
+function renderExtraBoutRow(e) {
+  if (editingBout === e.id) return renderBoutEdit(e);
+  const disc = Object.keys(e.scores)[0];
+  const s = e.scores[disc];
+  const result = s.for > s.against ? 'win' : s.for < s.against ? 'loss' : 'tie';
+  return `<div class="row" style="padding:6px 0;font-size:14px">
+    <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">
+      <span class="pill badge-extra">добёвка</span>
+      <span class="pill badge-${result}">${DISCIPLINES[disc]||disc} ${s.for}:${s.against}</span>
+    </div>
+    <div style="display:flex;gap:4px">
+      <button class="btn btn-xs btn-secondary" data-action="edit-bout" data-id="${e.id}">✎</button>
+      <button class="btn btn-xs btn-secondary" data-action="del-bout" data-id="${e.id}">×</button>
+    </div>
+  </div>`;
+}
+
+function renderMainBoutRow(b, extras) {
+  if (editingBout === b.id) return `<div class="list-item">${renderBoutEdit(b)}</div>`;
+  const stageLabel = b.stage === 'POOL' ? 'Пул' : b.stage === 'PLAYOFF' ? `Плей-офф${b.round?' '+b.round:''}` : '';
+  const scorePills = Object.entries(b.scores || {}).map(([disc, s]) => {
+    const result = s.for > s.against ? 'win' : s.for < s.against ? 'loss' : 'tie';
+    return `<span class="pill badge-${result}">${DISCIPLINES[disc]||disc} ${s.for}:${s.against}</span>`;
+  }).join(' ');
+  const extraForm = (addingExtraTo === b.id) ? renderAddExtraForm(b) : '';
+  const extrasList = extras.length > 0
+    ? `<div class="extras-wrap">${extras.map(e => renderExtraBoutRow(e)).join('')}</div>`
+    : '';
+  return `<div class="list-item">
+    <div class="row">
+      <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;flex:1">
+        ${stageLabel ? `<span class="pill">${esc(stageLabel)}</span>` : ''}
+        ${scorePills}
+      </div>
+      <div style="display:flex;gap:4px">
+        <button class="btn btn-sm btn-secondary" data-action="edit-bout" data-id="${b.id}" title="Редактировать">✎</button>
+        <button class="btn btn-sm btn-secondary" data-action="add-extra-to" data-id="${b.id}" title="Добавить добёвку">+</button>
+        <button class="btn btn-sm btn-secondary" data-action="del-bout" data-id="${b.id}" title="Удалить">×</button>
+      </div>
+    </div>
+    ${extraForm}
+    ${extrasList}
+  </div>`;
+}
+
+function renderEntry(entryId){
+  const entry = db.entries.find(e => e.id === entryId);
+  if (!entry) return '<div class="empty">Не найдено</div>';
+  const comp = db.competitions.find(c => c.id === entry.competitionId);
+  const student = db.students.find(s => s.id === entry.studentId);
+  if (!comp || !student) return '<div class="empty">Не найдено</div>';
+
+  const allEntryBouts = db.bouts.filter(b => b.entryId === entry.id);
+  const mainBouts = allEntryBouts.filter(b => !b.isExtra).sort((a,b) => a.createdAt - b.createdAt);
+  const extrasByParent = {};
+  for (const b of allEntryBouts) {
+    if (b.isExtra) {
+      const pid = b.parentBoutId || '__orphan__';
+      if (!extrasByParent[pid]) extrasByParent[pid] = [];
+      extrasByParent[pid].push(b);
+    }
+  }
+  const orphans = extrasByParent['__orphan__'] || [];
+  const agg = aggregate(allEntryBouts);
+
+  let mainForm = '';
+  if (entry.category === 'ALL_AROUND') {
+    mainForm = `
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;flex-wrap:wrap">
+        <span class="disc-label">Щит меч:</span>
+        <input name="scoreForShield" type="number" min="0" value="0" required class="score-input" inputmode="numeric">
+        <span class="score-sep">:</span>
+        <input name="scoreAgainstShield" type="number" min="0" value="0" required class="score-input" inputmode="numeric">
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;flex-wrap:wrap">
+        <span class="disc-label">Меч баклер:</span>
+        <input name="scoreForBuckler" type="number" min="0" value="0" required class="score-input" inputmode="numeric">
+        <span class="score-sep">:</span>
+        <input name="scoreAgainstBuckler" type="number" min="0" value="0" required class="score-input" inputmode="numeric">
+      </div>`;
+  } else {
+    mainForm = `
+      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+        <span class="disc-label">${DISCIPLINES[entry.category]||''}:</span>
+        <input name="scoreFor" type="number" min="0" value="0" required class="score-input" inputmode="numeric">
+        <span class="score-sep">:</span>
+        <input name="scoreAgainst" type="number" min="0" value="0" required class="score-input" inputmode="numeric">
+      </div>`;
+  }
+
+  return `<div class="muted link" data-go="competition" data-id="${comp.id}">‹ ${esc(comp.name)}</div>
+  <h1>${esc(fullName(student))}</h1>
+  <div class="muted" style="margin-bottom:12px">
+    ${calcAge(student.birthDate)} лет · ${catLabel(entry.category)} · ${fmtDate(comp.date)}
+  </div>
+
+  <div class="card" style="display:flex;align-items:center;gap:8px;padding:10px 12px;flex-wrap:wrap">
+    <span class="muted" style="font-size:14px">Место:</span>
+    <form data-action="set-place" style="display:flex;gap:6px;align-items:center;margin:0;flex:1;min-width:140px">
+      <input type="hidden" name="entryId" value="${entry.id}">
+      <input name="place" type="number" min="1" max="99" value="${entry.place||''}" placeholder="—" class="place-input">
+      <button class="btn btn-sm btn-secondary" type="submit">✓</button>
+    </form>
+    <button class="btn btn-sm btn-secondary" data-action="del-entry" data-id="${entry.id}" style="padding:6px 10px">удалить</button>
+  </div>
+
+  ${agg.mainBouts + agg.extraBouts > 0 ? `
+    <div class="card">
+      ${renderStatsTable(agg)}
+      ${renderPerDisc(agg)}
+    </div>
+  ` : ''}
+
+  <h2>Добавить бой</h2>
+  <div class="card">
+    <form data-action="add-bout-entry">
+      <input type="hidden" name="entryId" value="${entry.id}">
+      ${mainForm}
+      <label style="display:flex;align-items:center;gap:6px;font-size:13px;color:#718096;cursor:pointer;margin:10px 0 0;font-weight:400">
+        <input type="checkbox" data-toggle-stage style="width:auto;margin:0">
+        Указать этап / раунд
+      </label>
+      <div data-stage-fields style="display:none;margin-top:8px">
+        <div style="display:flex;gap:6px">
+          <select name="stage" style="flex:1">
+            <option value="">— (каждый с каждым)</option>
+            <option value="POOL">Пул</option>
+            <option value="PLAYOFF">Плей-офф</option>
+          </select>
+          <select name="round" data-round-field style="flex:1;display:none">
+            <option value="">раунд</option>
+            ${ROUNDS.map(r => `<option value="${r}">${r}</option>`).join('')}
+          </select>
+        </div>
+      </div>
+      <button class="btn btn-block" type="submit" style="margin-top:12px">Добавить бой</button>
+    </form>
+  </div>
+
+  <h2>Бои ${mainBouts.length > 0 ? '(осн. '+mainBouts.length+(agg.extraBouts?', доб. '+agg.extraBouts:'')+')' : ''}</h2>
+  ${mainBouts.length === 0 && orphans.length === 0 ? '<div class="empty">Боёв пока нет — добавь первый</div>' : `
+    ${mainBouts.length > 0 ? `<div class="card">
+      ${mainBouts.map(b => renderMainBoutRow(b, extrasByParent[b.id] || [])).join('')}
+    </div>` : ''}
+    ${orphans.length > 0 ? `<div class="card">
+      <h3 style="margin-top:0">Добёвки без привязки</h3>
+      ${orphans.map(e => renderExtraBoutRow(e)).join('')}
+    </div>` : ''}
+  `}
+
+  <div style="margin-top:24px;text-align:center">
+    <span class="muted link" data-go="student" data-id="${student.id}" style="font-size:14px">
+      Смотреть всю статистику ученика →
+    </span>
+  </div>`;
+}
+
+function bindEvents(){
+  document.querySelectorAll('[data-go]').forEach(el=>{el.addEventListener('click',()=>go(el.dataset.go,el.dataset.id))});
+
+  document.querySelectorAll('[data-toggle-stage]').forEach(cb => {
+    const form = cb.closest('form');
+    const fields = form.querySelector('[data-stage-fields]');
+    if (!fields) return;
+    cb.addEventListener('change', () => { fields.style.display = cb.checked ? '' : 'none'; });
+  });
+
+  document.querySelectorAll('select[name="stage"]').forEach(sel => {
+    const form = sel.closest('form');
+    const roundField = form.querySelector('[data-round-field]');
+    if (!roundField) return;
+    const toggle = () => { roundField.style.display = sel.value === 'PLAYOFF' ? '' : 'none'; };
+    sel.addEventListener('change', toggle);
+    toggle();
+  });
+
+  document.querySelectorAll('input[name="place"]').forEach(inp => {
+    inp.addEventListener('change', () => inp.closest('form').requestSubmit());
+  });
+
+  document.querySelectorAll('[data-action]').forEach(el=>{
+    const action=el.dataset.action;
+    if (action === 'import-json') {
+      el.addEventListener('change', e => {
+        const f = e.target.files[0];
+        if (f) importData(f);
+      });
+    } else if(el.tagName==='FORM'){
+      el.addEventListener('submit',e=>{e.preventDefault();handleForm(action,el)});
+    } else {
+      el.addEventListener('click',()=>handleAction(action,el.dataset.id));
+    }
+  });
+}
+
+function handleForm(action,form){
+  const fd=new FormData(form);
+  const get=k=>(fd.get(k)||'').toString().trim();
+  const num=k=>parseInt(get(k),10)||0;
+
+  if(action==='add-student'){
+    if(!get('lastName')||!get('firstName')||!get('birthDate'))return;
+    db.students.push({id:uid(),lastName:get('lastName'),firstName:get('firstName'),middleName:get('middleName')||null,birthDate:get('birthDate'),gender:get('gender')||null});
+    save();render();
+  }else if(action==='add-competition'){
+    if(!get('name')||!get('date'))return;
+    const c={id:uid(),name:get('name'),date:get('date'),city:get('city')||null};
+    db.competitions.push(c);save();go('competition',c.id);
+  }else if(action==='add-entry'){
+    const competitionId=get('competitionId'),studentId=get('studentId'),category=get('category');
+    if(!studentId)return;
+    const exists=db.entries.some(e=>e.competitionId===competitionId&&e.studentId===studentId&&e.category===category);
+    if(!exists)db.entries.push({id:uid(),competitionId,studentId,category,place:null});
+    save();render();
+  }else if(action==='add-bout-entry'){
+    const entryId=get('entryId');
+    const entry=db.entries.find(e=>e.id===entryId);
+    if(!entry)return;
+    const stage=get('stage')||null;
+    const round=stage==='PLAYOFF'?(get('round')||null):null;
+    const scores={};
+    if (entry.category === 'ALL_AROUND') {
+      scores.SHIELD_SWORD = {for: num('scoreForShield'), against: num('scoreAgainstShield')};
+      scores.SWORD_BUCKLER = {for: num('scoreForBuckler'), against: num('scoreAgainstBuckler')};
+    } else {
+      scores[entry.category] = {for: num('scoreFor'), against: num('scoreAgainst')};
+    }
+    db.bouts.push({
+      id:uid(), entryId,
+      competitionId:entry.competitionId,
+      studentId:entry.studentId,
+      category: entry.category,
+      isExtra: false, parentBoutId: null,
+      scores, stage, round,
+      createdAt: Date.now()
+    });
+    save();render();
+  }else if(action==='add-extra-bout'){
+    const boutId=get('boutId');
+    const parent = db.bouts.find(x => x.id === boutId);
+    if (!parent || parent.isExtra) return;
+    const discipline = get('discipline');
+    if (!discipline) return;
+    db.bouts.push({
+      id:uid(),
+      entryId: parent.entryId,
+      competitionId: parent.competitionId,
+      studentId: parent.studentId,
+      category: discipline,
+      isExtra: true,
+      parentBoutId: parent.id,
+      scores: {[discipline]: {for: num('scoreFor'), against: num('scoreAgainst')}},
+      stage: null, round: null,
+      createdAt: Date.now()
+    });
+    addingExtraTo = null;
+    save();render();
+  }else if(action==='edit-bout'){
+    const boutId=get('boutId');
+    const b=db.bouts.find(x=>x.id===boutId);
+    if(!b)return;
+    if (b.isExtra) {
+      const disc = get('discipline');
+      if (!disc) return;
+      b.scores = {[disc]: {for: num('scoreFor'), against: num('scoreAgainst')}};
+      b.category = disc;
+    } else if (b.category === 'ALL_AROUND') {
+      b.scores = {
+        SHIELD_SWORD: {for: num('scoreForShield'), against: num('scoreAgainstShield')},
+        SWORD_BUCKLER: {for: num('scoreForBuckler'), against: num('scoreAgainstBuckler')}
+      };
+    } else {
+      b.scores[b.category] = {for: num('scoreFor'), against: num('scoreAgainst')};
+    }
+    if (!b.isExtra) {
+      b.stage = get('stage') || null;
+      b.round = b.stage === 'PLAYOFF' ? (get('round') || null) : null;
+    }
+    editingBout = null;
+    save();render();
+  }else if(action==='set-place'){
+    const entryId=get('entryId');
+    const raw=get('place');
+    const entry=db.entries.find(x=>x.id===entryId);
+    if(entry){
+      entry.place = raw==='' ? null : Math.max(1, parseInt(raw,10)||1);
+      save();
+    }
+    render();
+  }
+}
+
+function handleAction(action,id){
+  if(action==='del-student'){
+    if(!confirm('Удалить ученика?'))return;
+    db.students=db.students.filter(x=>x.id!==id);
+    db.entries=db.entries.filter(x=>x.studentId!==id);
+    db.bouts=db.bouts.filter(x=>x.studentId!==id);
+    save();go('students');
+  }else if(action==='del-competition'){
+    if(!confirm('Удалить соревнование?'))return;
+    db.competitions=db.competitions.filter(x=>x.id!==id);
+    db.entries=db.entries.filter(x=>x.competitionId!==id);
+    db.bouts=db.bouts.filter(x=>x.competitionId!==id);
+    save();go('competitions');
+  }else if(action==='del-entry'){
+    const entry = db.entries.find(x => x.id === id);
+    if (entry) {
+      const st = db.students.find(s=>s.id===entry.studentId)||{};
+      if (!confirm(`Удалить ${fullName(st)} из ${catLabel(entry.category)}? Все его бои в этой номинации будут удалены.`)) return;
+      db.bouts = db.bouts.filter(b => b.entryId !== id);
+      db.entries = db.entries.filter(x => x.id !== id);
+      save();
+      go('competition', entry.competitionId);
+    }
+  }else if(action==='del-bout'){
+    const b = db.bouts.find(x => x.id === id);
+    if (b) {
+      if (b.isExtra) {
+        db.bouts = db.bouts.filter(x => x.id !== id);
+      } else {
+        const exCount = db.bouts.filter(x => x.parentBoutId === id).length;
+        if (exCount > 0) {
+          if (!confirm(`У этого боя ${exCount} добёвок. Удалить бой вместе с добёвками?`)) return;
+        }
+        db.bouts = db.bouts.filter(x => x.id !== id && x.parentBoutId !== id);
+      }
+    }
+    if (editingBout === id) editingBout = null;
+    if (addingExtraTo === id) addingExtraTo = null;
+    save();render();
+  }else if(action==='edit-bout'){
+    editingBout = id; addingExtraTo = null; render();
+  }else if(action==='cancel-edit-bout'){
+    editingBout = null; render();
+  }else if(action==='add-extra-to'){
+    addingExtraTo = id; editingBout = null; render();
+  }else if(action==='cancel-extra'){
+    addingExtraTo = null; render();
+  }else if(action==='export-json'){
+    exportData();
+  }
+}
+
+function exportData(){
+  const blob=new Blob([JSON.stringify(db,null,2)],{type:'application/json'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url;
+  a.download=`fencing-backup-${new Date().toISOString().slice(0,10)}.json`;
+  document.body.appendChild(a);a.click();a.remove();
+  setTimeout(()=>URL.revokeObjectURL(url),1000);
+}
+
+function importData(file){
+  const reader=new FileReader();
+  reader.onload=e=>{
+    try{
+      const data=JSON.parse(e.target.result);
+      if(!data.students||!data.competitions||!data.entries||!data.bouts){
+        alert('Неверный формат файла');return;
+      }
+      if(!confirm('Заменить текущие данные данными из файла?'))return;
+      db=normalize(data);save();render();
+      alert('Данные загружены: '+db.students.length+' учеников, '+db.competitions.length+' турниров');
+    }catch(err){alert('Ошибка чтения файла: '+err.message)}
+  };
+  reader.readAsText(file);
+}
+
+// Android: кнопка «Назад»
+window.androidBack = function() {
+  if (state.view === 'home') return false;
+  go('home');
+  return true;
+};
+
+render();
+</script>
+</body>
+</html>
