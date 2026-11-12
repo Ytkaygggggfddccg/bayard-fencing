@@ -8,18 +8,7 @@
 *{box-sizing:border-box}
 body{margin:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#f4f6f8;color:#1a202c;font-size:16px;line-height:1.4;-webkit-text-size-adjust:100%}
 
-.bg-lion {
-  position: fixed;
-  top: 0; left: 0; width: 100vw; height: 100vh;
-  background-image: url('logo.png');
-  background-repeat: no-repeat;
-  background-position: center;
-  background-size: 70vmin;
-  opacity: 0.04;
-  mix-blend-mode: multiply;
-  pointer-events: none;
-  z-index: -1;
-}
+.bg-lion { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background-image: url('logo.png'); background-repeat: no-repeat; background-position: center; background-size: 70vmin; opacity: 0.04; mix-blend-mode: multiply; pointer-events: none; z-index: -1; }
 
 .app-header{background:#fff;padding:14px 12px;display:flex;align-items:center;justify-content:center;gap:12px;box-shadow:0 1px 4px rgba(0,0,0,.08);position:relative;z-index:11}
 .club-logo{height:52px;width:auto;border-radius:6px;object-fit:contain}
@@ -47,11 +36,9 @@ h3{font-size:15px;margin:12px 0 6px;color:#4a5568}
 input,select,textarea{width:100%;padding:10px 12px;border:1px solid #cbd5e0;border-radius:8px;font-size:16px;background:#fff;font-family:inherit}
 input:focus,select:focus{outline:2px solid #c53030;outline-offset:-2px;border-color:#c53030}
 
-/* Стили для чекбоксов */
 .checkbox-label { display: flex; align-items: center; gap: 8px; font-weight: 500; cursor: pointer; margin: 0; padding: 8px 0; }
 .checkbox-label input[type="checkbox"] { width: 22px; height: 22px; margin: 0; accent-color: #c53030; }
 
-/* Стили для кнопок-переключателей (этап) */
 .segmented-control { display: flex; background: #edf2f7; border-radius: 8px; padding: 4px; gap: 4px; margin-top: 4px; }
 .segmented-control label { flex: 1; text-align: center; margin: 0; padding: 8px 4px; border-radius: 6px; cursor: pointer; font-size: 14px; font-weight: 500; color: #4a5568; transition: all .2s; }
 .segmented-control input[type="radio"] { display: none; }
@@ -81,7 +68,6 @@ th{font-size:12px;color:#718096;text-transform:uppercase;font-weight:600}
 .link{cursor:pointer;color:inherit;text-decoration:none}
 .link:hover{color:#c53030}
 .warn{background:#fed7d7;color:#742a2a;padding:10px 12px;border-radius:8px;margin-bottom:12px;font-size:14px}
-.warn code{background:rgba(0,0,0,.08);padding:1px 5px;border-radius:3px;font-size:13px}
 .place-input{width:60px;padding:6px 4px;font-size:15px;text-align:center;border-radius:6px}
 .score-input{width:74px;text-align:center;font-size:24px;font-weight:700;padding:8px 4px;border-radius:8px}
 .score-sep{font-size:24px;color:#718096;font-weight:700}
@@ -113,8 +99,6 @@ th{font-size:12px;color:#718096;text-transform:uppercase;font-weight:600}
 <main class="container" id="view"></main>
 <script>
 const KEY = 'fencing_coach_v1';
-
-// --- Firebase Инициализация ---
 const firebaseConfig = {
   apiKey: "AIzaSyAWJKDcY9iGGW_tPsKnwDx25H2E9HqWN4I",
   authDomain: "bayardstat.firebaseapp.com",
@@ -130,21 +114,12 @@ const dbFirestore = firebase.firestore();
 dbFirestore.enablePersistence().catch((err) => console.warn("Офлайн-режим:", err));
 const docRef = dbFirestore.collection("clubs").doc("bayard");
 
-const CATS = {
-  ALL_AROUND: 'Двоеборье',
-  SHIELD_SWORD: 'Щит меч',
-  SWORD_BUCKLER: 'Меч баклер'
-};
+const CATS = { ALL_AROUND: 'Двоеборье', SHIELD_SWORD: 'Щит меч', SWORD_BUCKLER: 'Меч баклер' };
 const DISCIPLINES = { SHIELD_SWORD: 'Щит меч', SWORD_BUCKLER: 'Меч баклер' };
 const ROUNDS = ['1/8','1/4','1/2','Финал'];
 
 let storageOK = true;
-try {
-  const t = '__fencing_test__';
-  localStorage.setItem(t, '1');
-  if (localStorage.getItem(t) !== '1') storageOK = false;
-  localStorage.removeItem(t);
-} catch (e) { storageOK = false; }
+try { const t = '__fencing_test__'; localStorage.setItem(t, '1'); if (localStorage.getItem(t) !== '1') storageOK = false; localStorage.removeItem(t); } catch (e) { storageOK = false; }
 
 let db = load();
 let state = {view:'home', id:null};
@@ -154,18 +129,15 @@ let addingExtraTo = null;
 function load(){
   const local = localStorage.getItem(KEY);
   let initialData = local ? normalize(JSON.parse(local)) : seed();
-
   docRef.onSnapshot((doc) => {
     if (doc.exists) {
-      const data = doc.data();
-      db = normalize(data);
+      db = normalize(doc.data());
       localStorage.setItem(KEY, JSON.stringify(db));
       render();
     } else {
       docRef.set(initialData);
     }
   });
-
   return initialData;
 }
 
@@ -173,61 +145,19 @@ function seed(){return {students:[],competitions:[],entries:[],bouts:[]}}
 
 function normalize(d){
   const competitions = (d.competitions || []).map(c => ({
-    id: c.id, 
-    name: c.name, 
-    date: c.date, 
-    city: c.city || c.location || null,
-    categories: c.categories || ['ALL_AROUND', 'SHIELD_SWORD', 'SWORD_BUCKLER'] // Совместимость со старыми турнирами
+    id: c.id, name: c.name, date: c.date, city: c.city || c.location || null,
+    categories: c.categories || ['ALL_AROUND', 'SHIELD_SWORD', 'SWORD_BUCKLER']
   }));
-  
   const entries = (d.entries || []).map(e => ({...e, place: e.place ?? null}));
   const bouts = (d.bouts || []).map(b => {
-    if (b.scores) {
-      return { ...b, isExtra: !!b.isExtra, parentBoutId: b.parentBoutId || null };
-    }
-    const category = b.category;
-    const scores = {};
-    if (category === 'ALL_AROUND') {
-      scores.SHIELD_SWORD = {for: b.scoreFor||0, against: b.scoreAgainst||0};
-      scores.SWORD_BUCKLER = {for: b.scoreFor||0, against: b.scoreAgainst||0};
-    } else {
-      scores[category] = {for: b.scoreFor||0, against: b.scoreAgainst||0};
-    }
+    if (b.scores) return { ...b, isExtra: !!b.isExtra, parentBoutId: b.parentBoutId || null };
+    const category = b.category; const scores = {};
+    if (category === 'ALL_AROUND') { scores.SHIELD_SWORD = {for: b.scoreFor||0, against: b.scoreAgainst||0}; scores.SWORD_BUCKLER = {for: b.scoreFor||0, against: b.scoreAgainst||0}; }
+    else { scores[category] = {for: b.scoreFor||0, against: b.scoreAgainst||0}; }
     let entryId = b.entryId;
-    if (!entryId) {
-      const entry = entries.find(e => e.competitionId === b.competitionId && e.studentId === b.studentId && e.category === b.category);
-      if (entry) entryId = entry.id;
-    }
-    return {
-      id: b.id, entryId, competitionId: b.competitionId, studentId: b.studentId,
-      category: b.category, isExtra: false, parentBoutId: null, scores,
-      stage: b.stage || null, round: b.round || null, createdAt: b.createdAt || Date.now()
-    };
+    if (!entryId) { const entry = entries.find(e => e.competitionId === b.competitionId && e.studentId === b.studentId && e.category === b.category); if (entry) entryId = entry.id; }
+    return { id: b.id, entryId, competitionId: b.competitionId, studentId: b.studentId, category: b.category, isExtra: false, parentBoutId: null, scores, stage: b.stage || null, round: b.round || null, createdAt: b.createdAt || Date.now() };
   });
-
-  const mainByEntry = {};
-  for (const b of bouts) {
-    if (!b.isExtra && b.entryId) {
-      if (!mainByEntry[b.entryId]) mainByEntry[b.entryId] = [];
-      mainByEntry[b.entryId].push(b);
-    }
-  }
-  for (const b of bouts) {
-    if (b.isExtra && !b.parentBoutId && b.entryId) {
-      const candidates = mainByEntry[b.entryId] || [];
-      if (candidates.length > 0) {
-        const discOfExtra = Object.keys(b.scores)[0];
-        let candidate = null;
-        for (let i = candidates.length - 1; i >= 0; i--) {
-          const c = candidates[i];
-          if (c.category === discOfExtra || c.category === 'ALL_AROUND') { candidate = c; break; }
-        }
-        if (!candidate) candidate = candidates[candidates.length - 1];
-        b.parentBoutId = candidate.id;
-      }
-    }
-  }
-
   return {students: d.students || [], competitions, entries, bouts};
 }
 
@@ -245,25 +175,16 @@ function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&l
 
 function aggregate(bouts) {
   const r = { mainBouts: 0, extraBouts: 0, fMain: 0, aMain: 0, wMain: 0, lMain: 0, tMain: 0, fExtra: 0, aExtra: 0, wExtra: 0, lExtra: 0, tExtra: 0, byDisc: {} };
-  for (const disc of Object.keys(DISCIPLINES)) {
-    r.byDisc[disc] = { mainBouts:0, extraBouts:0, fMain:0, aMain:0, fExtra:0, aExtra:0 };
-  }
+  for (const disc of Object.keys(DISCIPLINES)) { r.byDisc[disc] = { mainBouts:0, extraBouts:0, fMain:0, aMain:0, fExtra:0, aExtra:0 }; }
   for (const b of bouts) {
     let bf = 0, ba = 0;
     for (const [disc, s] of Object.entries(b.scores || {})) {
-      bf += s.for; ba += s.against;
-      const d = r.byDisc[disc];
-      if (!d) continue;
+      bf += s.for; ba += s.against; const d = r.byDisc[disc]; if (!d) continue;
       if (b.isExtra) { d.extraBouts++; d.fExtra += s.for; d.aExtra += s.against; }
       else { d.mainBouts++; d.fMain += s.for; d.aMain += s.against; }
     }
-    if (b.isExtra) {
-      r.extraBouts++; r.fExtra += bf; r.aExtra += ba;
-      if (bf > ba) r.wExtra++; else if (bf < ba) r.lExtra++; else r.tExtra++;
-    } else {
-      r.mainBouts++; r.fMain += bf; r.aMain += ba;
-      if (bf > ba) r.wMain++; else if (bf < ba) r.lMain++; else r.tMain++;
-    }
+    if (b.isExtra) { r.extraBouts++; r.fExtra += bf; r.aExtra += ba; if (bf > ba) r.wExtra++; else if (bf < ba) r.lExtra++; else r.tExtra++; }
+    else { r.mainBouts++; r.fMain += bf; r.aMain += ba; if (bf > ba) r.wMain++; else if (bf < ba) r.lMain++; else r.tMain++; }
   }
   return r;
 }
@@ -273,9 +194,7 @@ document.querySelector('.nav').addEventListener('click',e=>{const b=e.target.clo
 
 function render(){
   document.querySelectorAll('.nav button').forEach(b=>{
-    const active = b.dataset.nav===state.view
-      || (state.view==='student'&&b.dataset.nav==='students')
-      || ((state.view==='competition'||state.view==='entry')&&b.dataset.nav==='competitions');
+    const active = b.dataset.nav===state.view || (state.view==='student'&&b.dataset.nav==='students') || ((state.view==='competition'||state.view==='entry')&&b.dataset.nav==='competitions');
     b.classList.toggle('active', active);
   });
   const v=document.getElementById('view');
@@ -293,16 +212,9 @@ function renderStatsTable(agg) {
   return `<table>
     <thead><tr><th>Показатель</th><th class="num">Боёв</th><th class="num">Набил</th><th class="num">Проп.</th><th class="num">П/Пр/Н</th></tr></thead>
     <tbody>
-      <tr>
-        <td>Основные</td><td class="num">${agg.mainBouts}</td><td class="num">${agg.fMain}</td><td class="num">${agg.aMain}</td><td class="num">${agg.wMain}/${agg.lMain}/${agg.tMain}</td>
-      </tr>
-      ${hasExtra ? `
-      <tr>
-        <td>Добёвки</td><td class="num">${agg.extraBouts}</td><td class="num">${agg.fExtra}</td><td class="num">${agg.aExtra}</td><td class="num">${agg.wExtra}/${agg.lExtra}/${agg.tExtra}</td>
-      </tr>
-      <tr style="font-weight:600;background:#f7fafc">
-        <td>С добёвками</td><td class="num">${agg.mainBouts + agg.extraBouts}</td><td class="num">${agg.fMain + agg.fExtra}</td><td class="num">${agg.aMain + agg.aExtra}</td><td class="num">${agg.wMain + agg.wExtra}/${agg.lMain + agg.lExtra}/${agg.tMain + agg.tExtra}</td>
-      </tr>` : ''}
+      <tr><td>Основные</td><td class="num">${agg.mainBouts}</td><td class="num">${agg.fMain}</td><td class="num">${agg.aMain}</td><td class="num">${agg.wMain}/${agg.lMain}/${agg.tMain}</td></tr>
+      ${hasExtra ? `<tr><td>Добёвки</td><td class="num">${agg.extraBouts}</td><td class="num">${agg.fExtra}</td><td class="num">${agg.aExtra}</td><td class="num">${agg.wExtra}/${agg.lExtra}/${agg.tExtra}</td></tr>
+      <tr style="font-weight:600;background:#f7fafc"><td>С добёвками</td><td class="num">${agg.mainBouts + agg.extraBouts}</td><td class="num">${agg.fMain + agg.fExtra}</td><td class="num">${agg.aMain + agg.aExtra}</td><td class="num">${agg.wMain + agg.wExtra}/${agg.lMain + agg.lExtra}/${agg.tMain + agg.tExtra}</td></tr>` : ''}
     </tbody>
   </table>`;
 }
@@ -314,10 +226,7 @@ function renderPerDisc(agg) {
     return `<div class="disc-block">
       <div class="disc-block-title">${DISCIPLINES[disc]}</div>
       <div class="disc-line">Без добёвок: ${d.mainBouts} ${d.mainBouts===1?'бой':d.mainBouts<5?'боя':'боёв'} · ${d.fMain}:${d.aMain}</div>
-      ${d.extraBouts > 0 ? `
-        <div class="disc-line">Добёвки: ${d.extraBouts} · ${d.fExtra}:${d.aExtra}</div>
-        <div class="disc-line">С добёвками: ${d.mainBouts + d.extraBouts} ${(d.mainBouts+d.extraBouts)===1?'бой':(d.mainBouts+d.extraBouts)<5?'боя':'боёв'} · ${d.fMain + d.fExtra}:${d.aMain + d.aExtra}</div>
-      ` : ''}
+      ${d.extraBouts > 0 ? `<div class="disc-line">Добёвки: ${d.extraBouts} · ${d.fExtra}:${d.aExtra}</div><div class="disc-line">С добёвками: ${d.mainBouts + d.extraBouts} ${(d.mainBouts+d.extraBouts)===1?'бой':(d.mainBouts+d.extraBouts)<5?'боя':'боёв'} · ${d.fMain + d.fExtra}:${d.aMain + d.aExtra}</div>` : ''}
     </div>`;
   }).join('');
 }
@@ -325,9 +234,7 @@ function renderPerDisc(agg) {
 function renderHome(){
   const warn = !storageOK ? `<div class="warn"><strong>⚠️ Локальное сохранение недоступно</strong></div>` : '';
   return `${warn}
-  <div style="text-align:center;margin:16px 0 24px">
-    <img src="logo.png" alt="Герб" style="height:120px;width:auto;opacity:0.9;filter:drop-shadow(0 4px 6px rgba(197,48,48,0.2))" onerror="this.style.display='none'">
-  </div>
+  <div style="text-align:center;margin:16px 0 24px"><img src="logo.png" alt="Герб" style="height:120px;width:auto;opacity:0.9;filter:drop-shadow(0 4px 6px rgba(197,48,48,0.2))" onerror="this.style.display='none'"></div>
   <div class="grid-2" style="margin-bottom:16px;position:relative;z-index:1">
     <div class="stat"><div class="stat-value">${db.students.length}</div><div class="stat-label">учеников</div></div>
     <div class="stat"><div class="stat-value">${db.competitions.length}</div><div class="stat-label">турниров</div></div>
@@ -344,9 +251,7 @@ function renderStudents(){
   return `<h1>Ученики</h1>
   <details><summary>+ Добавить ученика</summary>
     <form data-action="add-student">
-      <label>Фамилия*</label><input name="lastName" required>
-      <label>Имя*</label><input name="firstName" required>
-      <label>Отчество</label><input name="middleName">
+      <label>Фамилия*</label><input name="lastName" required><label>Имя*</label><input name="firstName" required><label>Отчество</label><input name="middleName">
       <label>Дата рождения*</label><input name="birthDate" type="date" required>
       <label>Пол</label><select name="gender"><option value="">—</option><option value="м">М</option><option value="ж">Ж</option></select>
       <button class="btn btn-block" type="submit" style="margin-top:12px">Сохранить</button>
@@ -364,10 +269,7 @@ function renderStudents(){
     <summary style="color:#718096;font-weight:500;font-size:13px;padding:4px 0">⚙️ Резервная копия (JSON)</summary>
     <div class="card" style="margin-top:8px">
       <button class="btn btn-block btn-secondary btn-sm" data-action="export-json" style="margin-bottom:8px">Экспорт JSON</button>
-      <label class="btn btn-secondary btn-sm btn-block" style="cursor:pointer;margin:0">
-        Импорт JSON
-        <input type="file" accept=".json,application/json" style="display:none" data-action="import-json">
-      </label>
+      <label class="btn btn-secondary btn-sm btn-block" style="cursor:pointer;margin:0">Импорт JSON<input type="file" accept=".json,application/json" style="display:none" data-action="import-json"></label>
     </div>
   </details>`;
 }
@@ -381,8 +283,7 @@ function renderStudent(id){
 
   const byComp={};
   for (const b of myBouts) {
-    const c = db.competitions.find(x => x.id === b.competitionId);
-    if (!c) continue;
+    const c = db.competitions.find(x => x.id === b.competitionId); if (!c) continue;
     if (!byComp[b.competitionId]) byComp[b.competitionId] = {compId:b.competitionId, name:c.name, date:c.date, bouts:[]};
     byComp[b.competitionId].bouts.push(b);
   }
@@ -400,8 +301,7 @@ function renderStudent(id){
 
   const byYear = {};
   for (const b of myBouts) {
-    const c = db.competitions.find(x => x.id === b.competitionId);
-    if (!c) continue;
+    const c = db.competitions.find(x => x.id === b.competitionId); if (!c) continue;
     const y = new Date(c.date).getFullYear();
     if (!byYear[y]) byYear[y] = [];
     byYear[y].push(b);
@@ -421,12 +321,7 @@ function renderStudent(id){
   </div>
 
   <h2>Всего</h2>
-  <div class="card">
-    ${renderStatsTable(total)}
-    <div class="disc-block" style="margin-top:12px"><div style="font-weight:600;font-size:14px;color:#2d3748;margin-bottom:2px">По дисциплинам</div></div>
-    ${renderPerDisc(total)}
-  </div>
-
+  <div class="card">${renderStatsTable(total)}<div class="disc-block" style="margin-top:12px"><div style="font-weight:600;font-size:14px;color:#2d3748;margin-bottom:2px">По дисциплинам</div></div>${renderPerDisc(total)}</div>
   <h2>За ${cy} год</h2>
   <div class="card">${renderStatsTable(yearAgg)}</div>
 
@@ -445,11 +340,7 @@ function renderStudent(id){
       <thead><tr><th>Год</th><th class="num">Осн.</th><th class="num">Доб.</th><th class="num">Набил (осн./доб./всего)</th><th class="num">Проп. (осн./доб./всего)</th></tr></thead>
       <tbody>${Object.entries(byYear).sort((a,b)=>b[0]-a[0]).map(([y,list])=>{
         const a = aggregate(list);
-        return `<tr>
-          <td>${y}</td><td class="num">${a.mainBouts}</td><td class="num">${a.extraBouts}</td>
-          <td class="num">${a.fMain} / ${a.fExtra} / ${a.fMain+a.fExtra}</td>
-          <td class="num">${a.aMain} / ${a.aExtra} / ${a.aMain+a.aExtra}</td>
-        </tr>`;
+        return `<tr><td>${y}</td><td class="num">${a.mainBouts}</td><td class="num">${a.extraBouts}</td><td class="num">${a.fMain} / ${a.fExtra} / ${a.fMain+a.fExtra}</td><td class="num">${a.aMain} / ${a.aExtra} / ${a.aMain+a.aExtra}</td></tr>`;
       }).join('')}</tbody>
     </table></div>`:''}
 
@@ -464,14 +355,12 @@ function renderCompetitions(){
       <label>Название*</label><input name="name" required>
       <label>Дата*</label><input name="date" type="date" required value="${new Date().toISOString().slice(0,10)}">
       <label>Город</label><input name="city">
-      
       <label style="margin-top:16px; color:#c53030; font-weight:600">Какие номинации проводятся?</label>
       <div style="background:#f7fafc; padding:8px 12px; border-radius:8px; margin-top:4px;">
         <label class="checkbox-label"><input type="checkbox" name="cat_ALL_AROUND" checked> Двоеборье</label>
         <label class="checkbox-label"><input type="checkbox" name="cat_SHIELD_SWORD" checked> Щит меч</label>
         <label class="checkbox-label"><input type="checkbox" name="cat_SWORD_BUCKLER" checked> Меч баклер</label>
       </div>
-
       <button class="btn btn-block" type="submit" style="margin-top:16px">Создать</button>
     </form>
   </details>
@@ -531,17 +420,13 @@ function renderCompetition(id){
       if (entries.length === 0) return '';
       return `<h3 style="margin-top:8px;">${catLabel(cat)}</h3>
         ${entries.map(e => {
-          const s = db.students.find(x => x.id === e.studentId);
-          if (!s) return '';
+          const s = db.students.find(x => x.id === e.studentId); if (!s) return '';
           const mb = db.bouts.filter(b => b.entryId === e.id && !b.isExtra).length;
           const eb = db.bouts.filter(b => b.entryId === e.id && b.isExtra).length;
           return `<div class="row list-item entry-row" data-go="entry" data-id="${e.id}">
             <div style="flex:1">
               <div style="font-weight:500">${esc(fullName(s))}</div>
-              <div class="muted" style="font-size:13px;">
-                ${mb === 0 && eb === 0 ? 'нет боёв' : `${mb} боёв${eb ? ' · '+eb+' доб.' : ''}`}
-                ${e.place ? ' · <span style="color:#c53030">🏆 ' + e.place + ' место</span>' : ''}
-              </div>
+              <div class="muted" style="font-size:13px;">${mb === 0 && eb === 0 ? 'нет боёв' : `${mb} боёв${eb ? ' · '+eb+' доб.' : ''}`}${e.place ? ' · <span style="color:#c53030">🏆 ' + e.place + ' место</span>' : ''}</div>
             </div>
             <span class="muted">Вводить бои ›</span>
           </div>`;
@@ -549,13 +434,11 @@ function renderCompetition(id){
       `;
     }).join('')}
   </div>
-
   <button class="btn btn-danger btn-sm btn-block" data-action="del-competition" data-id="${c.id}" style="margin-top:24px">Удалить соревнование</button>`;
 }
 
 function renderEntry(entryId){
-  const entry = db.entries.find(e => e.id === entryId);
-  if (!entry) return '<div class="empty">Не найдено</div>';
+  const entry = db.entries.find(e => e.id === entryId); if (!entry) return '<div class="empty">Не найдено</div>';
   const comp = db.competitions.find(c => c.id === entry.competitionId);
   const student = db.students.find(s => s.id === entry.studentId);
   if (!comp || !student) return '<div class="empty">Не найдено</div>';
@@ -567,26 +450,10 @@ function renderEntry(entryId){
   let mainForm = '';
   if (entry.category === 'ALL_AROUND') {
     mainForm = `
-      <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;flex-wrap:wrap">
-        <span class="disc-label">Щит меч:</span>
-        <input name="scoreForShield" type="number" min="0" value="0" required class="score-input" inputmode="numeric">
-        <span class="score-sep">:</span>
-        <input name="scoreAgainstShield" type="number" min="0" value="0" required class="score-input" inputmode="numeric">
-      </div>
-      <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;flex-wrap:wrap">
-        <span class="disc-label">Меч баклер:</span>
-        <input name="scoreForBuckler" type="number" min="0" value="0" required class="score-input" inputmode="numeric">
-        <span class="score-sep">:</span>
-        <input name="scoreAgainstBuckler" type="number" min="0" value="0" required class="score-input" inputmode="numeric">
-      </div>`;
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;flex-wrap:wrap"><span class="disc-label">Щит меч:</span><input name="scoreForShield" type="number" min="0" value="0" required class="score-input"><span class="score-sep">:</span><input name="scoreAgainstShield" type="number" min="0" value="0" required class="score-input"></div>
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;flex-wrap:wrap"><span class="disc-label">Меч баклер:</span><input name="scoreForBuckler" type="number" min="0" value="0" required class="score-input"><span class="score-sep">:</span><input name="scoreAgainstBuckler" type="number" min="0" value="0" required class="score-input"></div>`;
   } else {
-    mainForm = `
-      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
-        <span class="disc-label">${DISCIPLINES[entry.category]||''}:</span>
-        <input name="scoreFor" type="number" min="0" value="0" required class="score-input" inputmode="numeric">
-        <span class="score-sep">:</span>
-        <input name="scoreAgainst" type="number" min="0" value="0" required class="score-input" inputmode="numeric">
-      </div>`;
+    mainForm = `<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap"><span class="disc-label">${DISCIPLINES[entry.category]||''}:</span><input name="scoreFor" type="number" min="0" value="0" required class="score-input"><span class="score-sep">:</span><input name="scoreAgainst" type="number" min="0" value="0" required class="score-input"></div>`;
   }
 
   return `<div class="muted link" data-go="competition" data-id="${comp.id}">‹ ${esc(comp.name)}</div>
@@ -609,18 +476,6 @@ function renderEntry(entryId){
     <form data-action="add-bout-entry">
       <input type="hidden" name="entryId" value="${entry.id}">
       
-      <label class="checkbox-label" style="margin-bottom:8px;">
-        <input type="checkbox" id="toggleExtra" name="isExtra"> Это добёвка
-      </label>
-
-      <div id="disciplineSelect" style="display:none; margin-bottom:8px;">
-        <label>Дисциплина добёвки</label>
-        <select name="extraDisc">
-          <option value="SHIELD_SWORD">Щит меч</option>
-          <option value="SWORD_BUCKLER">Меч баклер</option>
-        </select>
-      </div>
-
       <div id="mainScoreBlock">${mainForm}</div>
 
       <div id="stageBlock" style="margin-top:12px;">
@@ -631,10 +486,31 @@ function renderEntry(entryId){
           <label><input type="radio" name="stage" value=""><span>Без этапа</span></label>
         </div>
         <div id="roundBlock" style="display:none; margin-top:8px;">
-          <select name="round">
-            <option value="">раунд</option>
-            ${ROUNDS.map(r => `<option value="${r}">${r}</option>`).join('')}
-          </select>
+          <select name="round"><option value="">раунд</option>${ROUNDS.map(r => `<option value="${r}">${r}</option>`).join('')}</select>
+        </div>
+      </div>
+
+      <div style="margin-top:16px; background:#f7fafc; padding:12px; border-radius:8px; border:1px dashed #cbd5e0;">
+        <label class="checkbox-label" style="color:#c53030; font-weight:600;">
+          <input type="checkbox" id="toggleExtra" name="addExtra"> Добавить добёвку к этому бою
+        </label>
+        
+        <div id="extraScoreBlock" style="display:none; margin-top:12px;">
+          ${entry.category === 'ALL_AROUND' ? `
+          <div style="margin-bottom:8px;">
+            <label>Дисциплина добёвки</label>
+            <select name="extraDisc">
+              <option value="SHIELD_SWORD">Щит меч</option>
+              <option value="SWORD_BUCKLER">Меч баклер</option>
+            </select>
+          </div>` : `<input type="hidden" name="extraDisc" value="${entry.category}">`}
+          
+          <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+            <span class="disc-label" style="color:#c53030;">Счёт добёвки:</span>
+            <input name="extraScoreFor" type="number" min="0" value="0" class="score-input" style="border-color:#c53030;">
+            <span class="score-sep">:</span>
+            <input name="extraScoreAgainst" type="number" min="0" value="0" class="score-input" style="border-color:#c53030;">
+          </div>
         </div>
       </div>
 
@@ -653,8 +529,8 @@ function renderEntry(entryId){
           return `<span class="pill badge-${result}">${DISCIPLINES[disc]||disc} ${s.for}:${s.against}</span>`;
         }).join(' ');
         
-        // Находим добёвки этого боя
         const extras = allEntryBouts.filter(x => x.isExtra && x.parentBoutId === b.id);
+        const extraForm = (addingExtraTo === b.id) ? renderAddExtraForm(b) : '';
 
         return `<div class="list-item">
           <div class="row">
@@ -663,182 +539,100 @@ function renderEntry(entryId){
               ${scorePills}
             </div>
             <div style="display:flex;gap:4px">
-              <button class="btn btn-sm btn-secondary" data-action="edit-bout" data-id="${b.id}">✎</button>
-              <button class="btn btn-sm btn-secondary" data-action="del-bout" data-id="${b.id}">×</button>
+              <button class="btn btn-sm btn-secondary" data-action="edit-bout" data-id="${b.id}" title="Редактировать">✎</button>
+              <button class="btn btn-sm btn-secondary" data-action="add-extra-to" data-id="${b.id}" title="Добавить добёвку">+</button>
+              <button class="btn btn-sm btn-secondary" data-action="del-bout" data-id="${b.id}" title="Удалить">×</button>
             </div>
           </div>
+          ${extraForm}
           ${extras.length > 0 ? `<div class="extras-wrap">${extras.map(renderExtraBoutRow).join('')}</div>` : ''}
         </div>`;
       }).join('')}
     </div>
   `}
 
-  <div style="margin-top:24px;text-align:center">
-    <span class="muted link" data-go="student" data-id="${student.id}" style="font-size:14px">Смотреть всю статистику ученика →</span>
-  </div>`;
+  <div style="margin-top:24px;text-align:center"><span class="muted link" data-go="student" data-id="${student.id}" style="font-size:14px">Смотреть всю статистику ученика →</span></div>`;
 }
 
 function renderBoutEdit(b) {
-  let scoreInputs = '';
-  let stageSection = '';
+  let scoreInputs = ''; let stageSection = '';
 
   if (b.isExtra) {
     const parent = db.bouts.find(x => x.id === b.parentBoutId);
     const parentCategory = parent ? parent.category : null;
-    const currentDisc = Object.keys(b.scores)[0];
-    const s = b.scores[currentDisc];
-    let discField = parentCategory && parentCategory !== 'ALL_AROUND' 
-      ? `<input type="hidden" name="discipline" value="${parentCategory}"><span class="pill">${DISCIPLINES[parentCategory]}</span>`
-      : `<select name="discipline">${Object.entries(DISCIPLINES).map(([k,v]) => `<option value="${k}" ${k===currentDisc?'selected':''}>${v}</option>`).join('')}</select>`;
-    
-    scoreInputs = `<div style="display:flex;gap:8px;align-items:center;margin-bottom:8px">${discField}</div>
-      <div style="display:flex;align-items:center;gap:8px">
-        <input name="scoreFor" type="number" min="0" value="${s.for}" required class="score-input" inputmode="numeric">
-        <span class="score-sep">:</span>
-        <input name="scoreAgainst" type="number" min="0" value="${s.against}" required class="score-input" inputmode="numeric">
-      </div>`;
+    const currentDisc = Object.keys(b.scores)[0]; const s = b.scores[currentDisc];
+    let discField = parentCategory && parentCategory !== 'ALL_AROUND' ? `<input type="hidden" name="discipline" value="${parentCategory}"><span class="pill">${DISCIPLINES[parentCategory]}</span>` : `<select name="discipline">${Object.entries(DISCIPLINES).map(([k,v]) => `<option value="${k}" ${k===currentDisc?'selected':''}>${v}</option>`).join('')}</select>`;
+    scoreInputs = `<div style="display:flex;gap:8px;align-items:center;margin-bottom:8px">${discField}</div><div style="display:flex;align-items:center;gap:8px"><input name="scoreFor" type="number" min="0" value="${s.for}" required class="score-input"><span class="score-sep">:</span><input name="scoreAgainst" type="number" min="0" value="${s.against}" required class="score-input"></div>`;
   } else if (b.category === 'ALL_AROUND') {
     scoreInputs = `
       <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;flex-wrap:wrap"><span class="disc-label">Щит:</span><input name="scoreForShield" type="number" min="0" value="${b.scores.SHIELD_SWORD.for}" required class="score-input"><span class="score-sep">:</span><input name="scoreAgainstShield" type="number" min="0" value="${b.scores.SHIELD_SWORD.against}" required class="score-input"></div>
       <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;flex-wrap:wrap"><span class="disc-label">Баклер:</span><input name="scoreForBuckler" type="number" min="0" value="${b.scores.SWORD_BUCKLER.for}" required class="score-input"><span class="score-sep">:</span><input name="scoreAgainstBuckler" type="number" min="0" value="${b.scores.SWORD_BUCKLER.against}" required class="score-input"></div>`;
-    stageSection = `
-      <label>Этап</label>
-      <div class="segmented-control">
-        <label><input type="radio" name="stage" value="POOL" ${b.stage==='POOL'?'checked':''}><span>Подгруппа</span></label>
-        <label><input type="radio" name="stage" value="PLAYOFF" ${b.stage==='PLAYOFF'?'checked':''}><span>Плей-офф</span></label>
-        <label><input type="radio" name="stage" value="" ${!b.stage?'checked':''}><span>Без этапа</span></label>
-      </div>
-      <select name="round" data-round-field style="display:${b.stage==='PLAYOFF'?'':'none'};margin-top:6px">
-        <option value="">раунд</option>${ROUNDS.map(r => `<option value="${r}" ${b.round===r?'selected':''}>${r}</option>`).join('')}
-      </select>`;
+    stageSection = `<label>Этап</label><div class="segmented-control"><label><input type="radio" name="stage" value="POOL" ${b.stage==='POOL'?'checked':''}><span>Подгруппа</span></label><label><input type="radio" name="stage" value="PLAYOFF" ${b.stage==='PLAYOFF'?'checked':''}><span>Плей-офф</span></label><label><input type="radio" name="stage" value="" ${!b.stage?'checked':''}><span>Без этапа</span></label></div><select name="round" data-round-field style="display:${b.stage==='PLAYOFF'?'':'none'};margin-top:6px"><option value="">раунд</option>${ROUNDS.map(r => `<option value="${r}" ${b.round===r?'selected':''}>${r}</option>`).join('')}</select>`;
   } else {
     const s = b.scores[b.category] || {for:0, against:0};
     scoreInputs = `<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap"><span class="disc-label">${DISCIPLINES[b.category]||''}:</span><input name="scoreFor" type="number" min="0" value="${s.for}" required class="score-input"><span class="score-sep">:</span><input name="scoreAgainst" type="number" min="0" value="${s.against}" required class="score-input"></div>`;
-    stageSection = `
-      <label>Этап</label>
-      <div class="segmented-control">
-        <label><input type="radio" name="stage" value="POOL" ${b.stage==='POOL'?'checked':''}><span>Подгруппа</span></label>
-        <label><input type="radio" name="stage" value="PLAYOFF" ${b.stage==='PLAYOFF'?'checked':''}><span>Плей-офф</span></label>
-        <label><input type="radio" name="stage" value="" ${!b.stage?'checked':''}><span>Без этапа</span></label>
-      </div>
-      <select name="round" data-round-field style="display:${b.stage==='PLAYOFF'?'':'none'};margin-top:6px">
-        <option value="">раунд</option>${ROUNDS.map(r => `<option value="${r}" ${b.round===r?'selected':''}>${r}</option>`).join('')}
-      </select>`;
+    stageSection = `<label>Этап</label><div class="segmented-control"><label><input type="radio" name="stage" value="POOL" ${b.stage==='POOL'?'checked':''}><span>Подгруппа</span></label><label><input type="radio" name="stage" value="PLAYOFF" ${b.stage==='PLAYOFF'?'checked':''}><span>Плей-офф</span></label><label><input type="radio" name="stage" value="" ${!b.stage?'checked':''}><span>Без этапа</span></label></div><select name="round" data-round-field style="display:${b.stage==='PLAYOFF'?'':'none'};margin-top:6px"><option value="">раунд</option>${ROUNDS.map(r => `<option value="${r}" ${b.round===r?'selected':''}>${r}</option>`).join('')}</select>`;
   }
 
-  return `<div class="bout-edit">
-    <form data-action="edit-bout">
-      <input type="hidden" name="boutId" value="${b.id}">
-      ${b.isExtra ? '<div class="muted" style="font-size:12px;margin-bottom:6px;font-weight:600">Редактирование добёвки</div>' : ''}
-      ${scoreInputs}
-      ${stageSection}
-      <div style="display:flex;gap:8px;margin-top:12px">
-        <button class="btn" type="submit" style="flex:1">Сохранить</button>
-        <button class="btn btn-secondary" type="button" data-action="cancel-edit-bout">Отмена</button>
-      </div>
-    </form>
-  </div>`;
+  return `<div class="bout-edit"><form data-action="edit-bout"><input type="hidden" name="boutId" value="${b.id}">${b.isExtra ? '<div class="muted" style="font-size:12px;margin-bottom:6px;font-weight:600">Редактирование добёвки</div>' : ''}${scoreInputs}${stageSection}<div style="display:flex;gap:8px;margin-top:12px"><button class="btn" type="submit" style="flex:1">Сохранить</button><button class="btn btn-secondary" type="button" data-action="cancel-edit-bout">Отмена</button></div></form></div>`;
+}
+
+function renderAddExtraForm(parentBout) {
+  let discField = parentBout.category === 'ALL_AROUND' ? `<select name="discipline" style="flex:1"><option value="SHIELD_SWORD">Щит меч</option><option value="SWORD_BUCKLER">Меч баклер</option></select>` : `<input type="hidden" name="discipline" value="${parentBout.category}"><span class="pill">${DISCIPLINES[parentBout.category]}</span>`;
+  return `<div class="bout-edit"><form data-action="add-extra-bout"><input type="hidden" name="boutId" value="${parentBout.id}"><div class="muted" style="font-size:12px;margin-bottom:6px;font-weight:600">Добёвка к бою</div><div style="display:flex;gap:8px;align-items:center;margin-bottom:8px;flex-wrap:wrap">${discField}</div><div style="display:flex;align-items:center;gap:8px"><input name="scoreFor" type="number" min="0" value="0" required class="score-input"><span class="score-sep">:</span><input name="scoreAgainst" type="number" min="0" value="0" required class="score-input"></div><div style="display:flex;gap:8px;margin-top:10px"><button class="btn" type="submit" style="flex:1">Добавить</button><button class="btn btn-secondary" type="button" data-action="cancel-extra">Отмена</button></div></form></div>`;
 }
 
 function renderExtraBoutRow(e) {
   if (editingBout === e.id) return renderBoutEdit(e);
-  const disc = Object.keys(e.scores)[0];
-  const s = e.scores[disc];
+  const disc = Object.keys(e.scores)[0]; const s = e.scores[disc];
   const result = s.for > s.against ? 'win' : s.for < s.against ? 'loss' : 'tie';
-  return `<div class="row" style="padding:6px 0;font-size:14px">
-    <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">
-      <span class="pill badge-extra">добёвка</span>
-      <span class="pill badge-${result}">${DISCIPLINES[disc]||disc} ${s.for}:${s.against}</span>
-    </div>
-    <div style="display:flex;gap:4px">
-      <button class="btn btn-xs btn-secondary" data-action="edit-bout" data-id="${e.id}">✎</button>
-      <button class="btn btn-xs btn-secondary" data-action="del-bout" data-id="${e.id}">×</button>
-    </div>
-  </div>`;
+  return `<div class="row" style="padding:6px 0;font-size:14px"><div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap"><span class="pill badge-extra">добёвка</span><span class="pill badge-${result}">${DISCIPLINES[disc]||disc} ${s.for}:${s.against}</span></div><div style="display:flex;gap:4px"><button class="btn btn-xs btn-secondary" data-action="edit-bout" data-id="${e.id}">✎</button><button class="btn btn-xs btn-secondary" data-action="del-bout" data-id="${e.id}">×</button></div></div>`;
 }
 
 function bindEvents(){
   document.querySelectorAll('[data-go]').forEach(el=>{el.addEventListener('click',()=>go(el.dataset.go,el.dataset.id))});
 
-  // Логика для галочки "Добёвка" и этапа при добавлении боя
   const toggleExtra = document.getElementById('toggleExtra');
   if (toggleExtra) {
-    const stageBlock = document.getElementById('stageBlock');
-    const discBlock = document.getElementById('disciplineSelect');
-    const mainScoreBlock = document.getElementById('mainScoreBlock');
-    
+    const extraBlock = document.getElementById('extraScoreBlock');
     toggleExtra.addEventListener('change', () => {
-      if (toggleExtra.checked) {
-        stageBlock.style.display = 'none';
-        // Если это двоеборье, показываем выбор оружия для добёвки
-        if (entryCatIsAllAround) {
-          discBlock.style.display = 'block';
-          mainScoreBlock.style.display = 'none';
-        }
-      } else {
-        stageBlock.style.display = 'block';
-        discBlock.style.display = 'none';
-        mainScoreBlock.style.display = 'block';
-      }
+      extraBlock.style.display = toggleExtra.checked ? 'block' : 'none';
     });
   }
 
-  document.querySelectorAll('select[name="stage"], input[name="stage"]').forEach(el => {
+  document.querySelectorAll('input[name="stage"]').forEach(el => {
     const form = el.closest('form');
     const roundField = form.querySelector('#roundBlock') || form.querySelector('[data-round-field]');
     if (!roundField) return;
-    const toggle = () => {
-      const isPlayoff = form.querySelector('input[name="stage"]:checked')?.value === 'PLAYOFF';
-      roundField.style.display = isPlayoff ? '' : 'none';
-    };
+    const toggle = () => { roundField.style.display = form.querySelector('input[name="stage"]:checked')?.value === 'PLAYOFF' ? '' : 'none'; };
     form.querySelectorAll('input[name="stage"]').forEach(rad => rad.addEventListener('change', toggle));
     toggle();
   });
 
-  document.querySelectorAll('input[name="place"]').forEach(inp => {
-    inp.addEventListener('change', () => inp.closest('form').requestSubmit());
-  });
+  document.querySelectorAll('input[name="place"]').forEach(inp => { inp.addEventListener('change', () => inp.closest('form').requestSubmit()); });
 
   document.querySelectorAll('[data-action]').forEach(el=>{
     const action=el.dataset.action;
     if (action === 'import-json') {
-      el.addEventListener('change', e => {
-        const f = e.target.files[0];
-        if (f) importData(f);
-      });
+      el.addEventListener('change', e => { const f = e.target.files[0]; if (f) importData(f); });
     } else if (action === 'toggle-entry') {
       el.addEventListener('change', () => {
-        const compId = el.dataset.comp;
-        const studentId = el.dataset.student;
-        const cat = el.dataset.cat;
+        const compId = el.dataset.comp; const studentId = el.dataset.student; const cat = el.dataset.cat;
         const exists = db.entries.find(e => e.competitionId === compId && e.studentId === studentId && e.category === cat);
-        
-        if (el.checked && !exists) {
-          db.entries.push({id:uid(), competitionId:compId, studentId, category:cat, place:null});
-        } else if (!el.checked && exists) {
-          if (confirm('Убрать участника из этой номинации? Все его бои будут удалены.')) {
-            db.bouts = db.bouts.filter(b => b.entryId !== exists.id);
-            db.entries = db.entries.filter(e => e.id !== exists.id);
-          } else {
-            el.checked = true; return; // Отмена
-          }
+        if (el.checked && !exists) { db.entries.push({id:uid(), competitionId:compId, studentId, category:cat, place:null}); }
+        else if (!el.checked && exists) {
+          if (confirm('Убрать участника из этой номинации? Все его бои будут удалены.')) { db.bouts = db.bouts.filter(b => b.entryId !== exists.id); db.entries = db.entries.filter(e => e.id !== exists.id); }
+          else { el.checked = true; return; }
         }
         save(); render();
       });
-    } else if(el.tagName==='FORM'){
-      el.addEventListener('submit',e=>{e.preventDefault();handleForm(action,el)});
-    } else {
-      el.addEventListener('click',()=>handleAction(action,el.dataset.id));
-    }
+    } else if(el.tagName==='FORM'){ el.addEventListener('submit',e=>{e.preventDefault();handleForm(action,el)}); }
+    else { el.addEventListener('click',()=>handleAction(action,el.dataset.id)); }
   });
 }
 
-let entryCatIsAllAround = false; // Глобальная переменная для контекста
-
 function handleForm(action,form){
-  const fd=new FormData(form);
-  const get=k=>(fd.get(k)||'').toString().trim();
-  const num=k=>parseInt(get(k),10)||0;
+  const fd=new FormData(form); const get=k=>(fd.get(k)||'').toString().trim(); const num=k=>parseInt(get(k),10)||0;
 
   if(action==='add-student'){
     if(!get('lastName')||!get('firstName')||!get('birthDate'))return;
@@ -846,141 +640,86 @@ function handleForm(action,form){
     save();render();
   }else if(action==='add-competition'){
     if(!get('name')||!get('date'))return;
-    
-    const cats = [];
-    if (fd.get('cat_ALL_AROUND')) cats.push('ALL_AROUND');
-    if (fd.get('cat_SHIELD_SWORD')) cats.push('SHIELD_SWORD');
-    if (fd.get('cat_SWORD_BUCKLER')) cats.push('SWORD_BUCKLER');
-    
+    const cats = []; if (fd.get('cat_ALL_AROUND')) cats.push('ALL_AROUND'); if (fd.get('cat_SHIELD_SWORD')) cats.push('SHIELD_SWORD'); if (fd.get('cat_SWORD_BUCKLER')) cats.push('SWORD_BUCKLER');
     if (cats.length === 0) { alert('Выберите хотя бы одну номинацию!'); return; }
-
     const c={id:uid(),name:get('name'),date:get('date'),city:get('city')||null, categories: cats};
     db.competitions.push(c);save();go('competition',c.id);
   }else if(action==='add-bout-entry'){
-    const entryId=get('entryId');
-    const entry=db.entries.find(e=>e.id===entryId);
-    if(!entry)return;
+    const entryId=get('entryId'); const entry=db.entries.find(e=>e.id===entryId); if(!entry)return;
     
-    const isExtra = fd.get('isExtra') === 'on';
+    const mainStage = form.querySelector('input[name="stage"]:checked')?.value || null;
+    const mainRound = mainStage === 'PLAYOFF' ? (get('round') || null) : null;
+    const mainBoutId = uid();
     
-    if (isExtra) {
-      // Ищем последний основной бой
-      const mainBouts = db.bouts.filter(b => b.entryId === entryId && !b.isExtra);
-      if (mainBouts.length === 0) {
-        alert('Сначала добавьте основной бой, к которому привяжется добёвка!');
-        return;
-      }
-      const lastMain = mainBouts.sort((a,b)=>b.createdAt - a.createdAt)[0];
-      
-      let disc = entry.category;
-      if (entry.category === 'ALL_AROUND') disc = get('extraDisc');
-      
+    let scores={};
+    if (entry.category === 'ALL_AROUND') { scores.SHIELD_SWORD = {for: num('scoreForShield'), against: num('scoreAgainstShield')}; scores.SWORD_BUCKLER = {for: num('scoreForBuckler'), against: num('scoreAgainstBuckler')}; }
+    else { scores[entry.category] = {for: num('scoreFor'), against: num('scoreAgainst')}; }
+
+    db.bouts.push({
+      id: mainBoutId, entryId, competitionId: entry.competitionId, studentId: entry.studentId,
+      category: entry.category, isExtra: false, parentBoutId: null,
+      scores, stage: mainStage, round: mainRound, createdAt: Date.now()
+    });
+
+    if (fd.get('addExtra') === 'on') {
+      const disc = get('extraDisc');
       db.bouts.push({
-        id:uid(), entryId,
-        competitionId:entry.competitionId, studentId:entry.studentId,
-        category: disc, isExtra: true, parentBoutId: lastMain.id,
-        scores: {[disc]: {for: num(entry.category === 'ALL_AROUND' ? 'scoreFor' : 'scoreFor'), against: num(entry.category === 'ALL_AROUND' ? 'scoreAgainst' : 'scoreAgainst')}},
-        stage: null, round: null, createdAt: Date.now()
-      });
-    } else {
-      const stage = form.querySelector('input[name="stage"]:checked')?.value || null;
-      const round = stage === 'PLAYOFF' ? (get('round') || null) : null;
-      
-      const scores={};
-      if (entry.category === 'ALL_AROUND') {
-        scores.SHIELD_SWORD = {for: num('scoreForShield'), against: num('scoreAgainstShield')};
-        scores.SWORD_BUCKLER = {for: num('scoreForBuckler'), against: num('scoreAgainstBuckler')};
-      } else {
-        scores[entry.category] = {for: num('scoreFor'), against: num('scoreAgainst')};
-      }
-      db.bouts.push({
-        id:uid(), entryId,
-        competitionId:entry.competitionId, studentId:entry.studentId,
-        category: entry.category, isExtra: false, parentBoutId: null,
-        scores, stage, round, createdAt: Date.now()
+        id:uid(), entryId, competitionId: entry.competitionId, studentId: entry.studentId,
+        category: disc, isExtra: true, parentBoutId: mainBoutId,
+        scores: {[disc]: {for: num('extraScoreFor'), against: num('extraScoreAgainst')}},
+        stage: null, round: null, createdAt: Date.now() + 1
       });
     }
     save();render();
+  }else if(action==='add-extra-bout'){
+    const boutId=get('boutId'); const parent = db.bouts.find(x => x.id === boutId); if (!parent || parent.isExtra) return;
+    const discipline = get('discipline'); if (!discipline) return;
+    db.bouts.push({
+      id:uid(), entryId: parent.entryId, competitionId: parent.competitionId, studentId: parent.studentId,
+      category: discipline, isExtra: true, parentBoutId: parent.id,
+      scores: {[discipline]: {for: num('scoreFor'), against: num('scoreAgainst')}},
+      stage: null, round: null, createdAt: Date.now()
+    });
+    addingExtraTo = null; save();render();
   }else if(action==='edit-bout'){
-    const boutId=get('boutId');
-    const b=db.bouts.find(x=>x.id===boutId);
-    if(!b)return;
+    const boutId=get('boutId'); const b=db.bouts.find(x=>x.id===boutId); if(!b)return;
     if (b.isExtra) {
-      const disc = get('discipline');
-      if (!disc) return;
-      b.scores = {[disc]: {for: num('scoreFor'), against: num('scoreAgainst')}};
-      b.category = disc;
+      const disc = get('discipline'); if (!disc) return;
+      b.scores = {[disc]: {for: num('scoreFor'), against: num('scoreAgainst')}}; b.category = disc;
     } else if (b.category === 'ALL_AROUND') {
-      b.scores = {
-        SHIELD_SWORD: {for: num('scoreForShield'), against: num('scoreAgainstShield')},
-        SWORD_BUCKLER: {for: num('scoreForBuckler'), against: num('scoreAgainstBuckler')}
-      };
+      b.scores = { SHIELD_SWORD: {for: num('scoreForShield'), against: num('scoreAgainstShield')}, SWORD_BUCKLER: {for: num('scoreForBuckler'), against: num('scoreAgainstBuckler')} };
     } else {
       b.scores[b.category] = {for: num('scoreFor'), against: num('scoreAgainst')};
     }
-    if (!b.isExtra) {
-      b.stage = form.querySelector('input[name="stage"]:checked')?.value || null;
-      b.round = b.stage === 'PLAYOFF' ? (get('round') || null) : null;
-    }
-    editingBout = null;
-    save();render();
+    if (!b.isExtra) { b.stage = form.querySelector('input[name="stage"]:checked')?.value || null; b.round = b.stage === 'PLAYOFF' ? (get('round') || null) : null; }
+    editingBout = null; save();render();
   }else if(action==='set-place'){
-    const entryId=get('entryId');
-    const raw=get('place');
-    const entry=db.entries.find(x=>x.id===entryId);
-    if(entry){
-      entry.place = raw==='' ? null : Math.max(1, parseInt(raw,10)||1);
-      save();
-    }
+    const entryId=get('entryId'); const raw=get('place'); const entry=db.entries.find(x=>x.id===entryId);
+    if(entry){ entry.place = raw==='' ? null : Math.max(1, parseInt(raw,10)||1); save(); }
     render();
   }
 }
 
 function handleAction(action,id){
-  if(action==='del-student'){
-    if(!confirm('Удалить ученика?'))return;
-    db.students=db.students.filter(x=>x.id!==id);
-    db.entries=db.entries.filter(x=>x.studentId!==id);
-    db.bouts=db.bouts.filter(x=>x.studentId!==id);
-    save();go('students');
-  }else if(action==='del-competition'){
-    if(!confirm('Удалить соревнование?'))return;
-    db.competitions=db.competitions.filter(x=>x.id!==id);
-    db.entries=db.entries.filter(x=>x.competitionId!==id);
-    db.bouts=db.bouts.filter(x=>x.competitionId!==id);
-    save();go('competitions');
-  }else if(action==='del-bout'){
+  if(action==='del-student'){ if(!confirm('Удалить ученика?'))return; db.students=db.students.filter(x=>x.id!==id); db.entries=db.entries.filter(x=>x.studentId!==id); db.bouts=db.bouts.filter(x=>x.studentId!==id); save();go('students'); }
+  else if(action==='del-competition'){ if(!confirm('Удалить соревнование?'))return; db.competitions=db.competitions.filter(x=>x.id!==id); db.entries=db.entries.filter(x=>x.competitionId!==id); db.bouts=db.bouts.filter(x=>x.competitionId!==id); save();go('competitions'); }
+  else if(action==='del-bout'){
     const b = db.bouts.find(x => x.id === id);
     if (b) {
-      if (b.isExtra) {
-        db.bouts = db.bouts.filter(x => x.id !== id);
-      } else {
-        const exCount = db.bouts.filter(x => x.parentBoutId === id).length;
-        if (exCount > 0) {
-          if (!confirm(`У этого боя ${exCount} добёвок. Удалить бой вместе с добёвками?`)) return;
-        }
-        db.bouts = db.bouts.filter(x => x.id !== id && x.parentBoutId !== id);
-      }
+      if (b.isExtra) { db.bouts = db.bouts.filter(x => x.id !== id); }
+      else { const exCount = db.bouts.filter(x => x.parentBoutId === id).length; if (exCount > 0 && !confirm(`У этого боя ${exCount} добёвок. Удалить бой вместе с добёвками?`)) return; db.bouts = db.bouts.filter(x => x.id !== id && x.parentBoutId !== id); }
     }
-    if (editingBout === id) editingBout = null;
-    save();render();
-  }else if(action==='edit-bout'){
-    editingBout = id; render();
-  }else if(action==='cancel-edit-bout'){
-    editingBout = null; render();
-  }else if(action==='export-json'){
-    exportData();
-  }
+    if (editingBout === id) editingBout = null; if (addingExtraTo === id) addingExtraTo = null; save();render();
+  } else if(action==='edit-bout'){ editingBout = id; addingExtraTo = null; render(); }
+  else if(action==='cancel-edit-bout'){ editingBout = null; render(); }
+  else if(action==='add-extra-to'){ addingExtraTo = id; editingBout = null; render(); }
+  else if(action==='cancel-extra'){ addingExtraTo = null; render(); }
+  else if(action==='export-json'){ exportData(); }
 }
 
 function exportData(){
-  const blob=new Blob([JSON.stringify(db,null,2)],{type:'application/json'});
-  const url=URL.createObjectURL(blob);
-  const a=document.createElement('a');
-  a.href=url;
-  a.download=`fencing-backup-${new Date().toISOString().slice(0,10)}.json`;
-  document.body.appendChild(a);a.click();a.remove();
-  setTimeout(()=>URL.revokeObjectURL(url),1000);
+  const blob=new Blob([JSON.stringify(db,null,2)],{type:'application/json'}); const url=URL.createObjectURL(blob); const a=document.createElement('a');
+  a.href=url; a.download=`fencing-backup-${new Date().toISOString().slice(0,10)}.json`; document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(url),1000);
 }
 
 function importData(file){
@@ -988,32 +727,15 @@ function importData(file){
   reader.onload=e=>{
     try{
       const data=JSON.parse(e.target.result);
-      if(!data.students||!data.competitions||!data.entries||!data.bouts){
-        alert('Неверный формат файла');return;
-      }
+      if(!data.students||!data.competitions||!data.entries||!data.bouts){ alert('Неверный формат файла');return; }
       if(!confirm('Заменить текущие данные данными из файла?'))return;
-      db=normalize(data);save();render();
-      alert('Данные загружены: '+db.students.length+' учеников, '+db.competitions.length+' турниров');
+      db=normalize(data);save();render(); alert('Данные загружены: '+db.students.length+' учеников, '+db.competitions.length+' турниров');
     }catch(err){alert('Ошибка чтения файла: '+err.message)}
   };
   reader.readAsText(file);
 }
 
-// Android: кнопка «Назад»
-window.androidBack = function() {
-  if (state.view === 'home') return false;
-  go('home');
-  return true;
-};
-
-// Нам нужно знать категорию текущего участника для переключения полей "Добёвки"
-const originalRenderEntry = renderEntry;
-renderEntry = function(entryId) {
-  const entry = db.entries.find(e => e.id === entryId);
-  entryCatIsAllAround = entry ? entry.category === 'ALL_AROUND' : false;
-  return originalRenderEntry(entryId);
-};
-
+window.androidBack = function() { if (state.view === 'home') return false; go('home'); return true; };
 render();
 </script>
 </body>
