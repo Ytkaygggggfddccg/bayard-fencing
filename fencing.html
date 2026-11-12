@@ -86,6 +86,10 @@ th{font-size:12px;color:#718096;text-transform:uppercase;font-weight:600}
 </style>
 </head>
 <body>
+<!-- Подключаем библиотеки Firebase -->
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+
 <div class="bg-lion"></div>
 <header class="app-header">
   <img src="logo.png" alt="Герб клуба" class="club-logo" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj48Y2lyY2xlIGN4PSI1MCIgY3k9IjUwIiByPSI0NSIgZmlsbD0iI2M1MzAzMCIvPjx0ZXh0IHg9IjUwIiB5PSI2NSIgZm9udC1zaXplPSI1MCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZmlsbD0iI2ZmZiIgZm9udC1mYW1pbHk9InNhbnMtc2VyaWYiPk08L3RleHQ+PC9zdmc+';">
@@ -99,6 +103,26 @@ th{font-size:12px;color:#718096;text-transform:uppercase;font-weight:600}
 <main class="container" id="view"></main>
 <script>
 const KEY = 'fencing_coach_v1';
+
+// --- Firebase Инициализация ---
+const firebaseConfig = {
+  apiKey: "AIzaSyAWJKDcY9iGGW_tPsKnwDx25H2E9HqWN4I",
+  authDomain: "bayardstat.firebaseapp.com",
+  projectId: "bayardstat",
+  storageBucket: "bayardstat.firebasestorage.app",
+  messagingSenderId: "689072606086",
+  appId: "1:689072606086:web:b9cb9d0df8f3a7675d7a07",
+  measurementId: "G-JW3HX6MTR3"
+};
+
+firebase.initializeApp(firebaseConfig);
+const dbFirestore = firebase.firestore();
+// Включаем офлайн-режим, чтобы данные сохранялись даже без интернета
+dbFirestore.enablePersistence().catch((err) => console.warn("Офлайн-режим:", err));
+
+// Ссылка на документ в облаке (все данные хранятся в одном файле)
+const docRef = dbFirestore.collection("clubs").doc("bayard");
+
 const CATS = {
   ALL_AROUND: 'Двоеборье',
   SHIELD_SWORD: 'Щит меч',
@@ -120,13 +144,28 @@ let state = {view:'home', id:null};
 let editingBout = null;
 let addingExtraTo = null;
 
+// Загрузка данных (сначала из памяти, потом подтягиваем из облака)
 function load(){
-  try {
-    const raw = localStorage.getItem(KEY);
-    if (!raw) return seed();
-    return normalize(JSON.parse(raw));
-  } catch(e){ return seed(); }
+  const local = localStorage.getItem(KEY);
+  let initialData = local ? normalize(JSON.parse(local)) : seed();
+
+  // Слушаем изменения в Firebase в реальном времени
+  docRef.onSnapshot((doc) => {
+    if (doc.exists) {
+      const data = doc.data();
+      db = normalize(data);
+      // Сохраняем локально, чтобы работало без интернета
+      localStorage.setItem(KEY, JSON.stringify(db));
+      render(); // Перерисовываем интерфейс, если пришли новые данные
+    } else {
+      // Если в облаке пусто, загружаем туда текущие данные (или пустую базу)
+      docRef.set(initialData);
+    }
+  });
+
+  return initialData;
 }
+
 function seed(){return {students:[],competitions:[],entries:[],bouts:[]}}
 
 function normalize(d){
@@ -200,7 +239,20 @@ function normalize(d){
   return {students: d.students || [], competitions, entries, bouts};
 }
 
-function save(){ try { localStorage.setItem(KEY, JSON.stringify(db)); } catch(e) { storageOK = false; console.error('save failed', e); } }
+// Сохранение данных (в память телефона и в облако)
+function save(){
+  try { 
+    localStorage.setItem(KEY, JSON.stringify(db)); 
+  } catch(e) { 
+    storageOK = false; 
+    console.error('save local failed', e); 
+  }
+  
+  docRef.set(db).catch((e) => {
+    console.error("Ошибка сохранения в облако:", e);
+  });
+}
+
 function uid(){return Math.random().toString(36).slice(2)+Date.now().toString(36)}
 function calcAge(bd){const d=new Date(bd),t=new Date();let a=t.getFullYear()-d.getFullYear();const m=t.getMonth()-d.getMonth();if(m<0||(m===0&&t.getDate()<d.getDate()))a--;return a}
 function fmtDate(d){return new Date(d).toLocaleDateString('ru-RU')}
@@ -309,9 +361,8 @@ function renderPerDisc(agg) {
 
 function renderHome(){
   const warn = !storageOK ? `<div class="warn">
-    <strong>⚠️ Сохранение в браузере недоступно</strong><br>
-    Запусти локальный сервер: <code>python -m http.server 8000</code> (или <code>npx serve</code>)<br>
-    и открой <code>http://localhost:8000/fencing.html</code>.
+    <strong>⚠️ Локальное сохранение недоступно</strong><br>
+    Приложение работает в режиме инкогнито или нет доступа к памяти.
   </div>` : '';
   return `${warn}
   <div style="text-align:center;margin:16px 0 24px">
@@ -356,7 +407,7 @@ function renderStudents(){
     <summary style="color:#718096;font-weight:500;font-size:13px;padding:4px 0">⚙️ Резервная копия (JSON)</summary>
     <div class="card" style="margin-top:8px">
       <div class="muted" style="font-size:13px;margin-bottom:10px">
-        Данные хранятся только в этом браузере. Сохрани файл, если сменишь браузер или устройство — иначе потеряешь всё.
+        Данные автоматически синхронизируются с облаком. Резервная копия нужна на случай проблем с интернетом или аккаунтом.
       </div>
       <button class="btn btn-block btn-secondary btn-sm" data-action="export-json" style="margin-bottom:8px">Экспорт JSON (скачать копию)</button>
       <label class="btn btn-secondary btn-sm btn-block" style="cursor:pointer;margin:0">
